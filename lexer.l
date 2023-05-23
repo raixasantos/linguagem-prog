@@ -6,6 +6,8 @@
 
 [ \t\n]               ;
 [0-9]+                { printf("NUMBER(%s)\n",yytext); }
+"begin"               { printf("BEGIN\n"); }
+"end"                 { printf("END\n"); }
 "int"                 { printf("INT\n"); }
 "float"               { printf("FLOAT\n"); }
 "bool"                { printf("BOOL\n"); }
@@ -16,17 +18,24 @@
 "or"                  { printf("OR\n"); }
 "not"                 { printf("NOT\n"); }
 "while"               { printf("WHILE\n"); }
-"begin"               { printf("BEGIN\n"); }
-"end"                 { printf("END\n"); }
+"in"                  { printf("IN\n"); }
 "do"                  { printf("DO\n"); }
 "for"                 { printf("FOR\n"); }
+"switch"              { printf("SWITCH\n"); }
+"case"                { printf("CASE\n"); }
+"break"               { printf("BREAK\n"); }
+"continue"            { printf("CONTINUE\n"); }
 "if"                  { printf("IF\n"); }
 "then"                { printf("THEN\n"); }
 "else"                { printf("ELSE\n"); }
 "return"              { printf("RETURN\n"); }
+"print"               { printf("PRINT\n"); }
+"input"               { printf("INPUT\n"); }
 ";"                   { printf("SEMICOLON\n"); }
 "<="                  { printf("LESSTHENEQ\n"); }
 ">="                  { printf("MORETHENEQ\n"); }
+"<"                   { printf("LESSTHEN\n"); }
+">"                   { printf("MORETHEN\n"); }
 "+="                  { printf("MOREISEQUAL\n"); }
 "-="                  { printf("LESSISEQUAL\n"); }
 "=="                  { printf("ISEQUAL\n"); }
@@ -37,23 +46,19 @@
 ":"                   { printf("COLON\n"); }
 "("                   { printf("LPAREN\n"); }
 ")"                   { printf("RPAREN\n"); }
-"["                   { printf("BRACK\n"); }
+"["                   { printf("LBRACK\n"); }
 "]"                   { printf("RBRACK\n"); }
 "{"                   { printf("LBRACE\n"); }
 "}"                   { printf("RBRACE\n"); }
 "."                   { printf("DOT\n"); }
 "+"                   { printf("PLUS\n"); }
 "-"                   { printf("MINUS\n"); }
-"*"                   { printf("MULT\n"); }
+"*"                   { printf("MULTIP\n"); }
 "/"                   { printf("DIVIDE\n"); }
-"<"                  { printf("LESSTHEN\n"); }
-">"                  { printf("MORETHEN\n"); }
 [a-zA-Z][a-zA-Z0-9]*  { printf("ID(%s)\n",yytext); }
 .                     { printf("Invalid character(%s).\n",yytext); }
 
 %%
-
-/* TODO: adicionar <=, >=, ==, +=, -= */
 
 #ifndef yywrap
    int yywrap (void) {return 1;}
