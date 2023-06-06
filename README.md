@@ -1,6 +1,6 @@
-# Analisador Léxico
+# PRANS
 
-Este é o analisador léxico desenvolvido para disciplina Engenharia de Linguagens. Ele é capaz de identificar diferentes tipos de elementos léxicos, como palavras-chave, identificadores, números, operadores e símbolos.
+PRANS é uma linguagem desenvolvida para disciplina Engenharia de Linguagens.
 
 ## Como executar
 
