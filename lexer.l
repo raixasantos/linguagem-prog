@@ -1,71 +1,74 @@
 %{
   #include <stdio.h>  
+  #include "y.tab.h"
+  
+  extern int yyerror (char *msg);  
 %}
 
 %%
 
 [ \t\n]               ;
-[0-9]+                { printf("NUMBER(%s)\n",yytext); }
-"begin"               { printf("BEGIN_BLOCK\n"); }
-"end"                 { printf("END_BLOCK\n"); }
-"int"                 { printf("INT\n"); }
-"float"               { printf("FLOAT\n"); }
-"bool"                { printf("BOOL\n"); }
-"string"              { printf("STRING\n"); }
-"concat"              { printf("CONCAT\n"); }
-"lenght"              { printf("LENGHT\n"); }
-"and"                 { printf("AND\n"); }
-"or"                  { printf("OR\n"); }
-"not"                 { printf("NOT\n"); }
-"while"               { printf("WHILE\n"); }
-"in"                  { printf("IN\n"); }
-"do"                  { printf("DO\n"); }
-"for"                 { printf("FOR\n"); }
-"switch"              { printf("SWITCH\n"); }
-"case"                { printf("CASE\n"); }
-"break"               { printf("BREAK\n"); }
-"continue"            { printf("CONTINUE\n"); }
-"if"                  { printf("IF\n"); }
-"then"                { printf("THEN\n"); }
-"else"                { printf("ELSE\n"); }
-"return"              { printf("RETURN\n"); }
-"print"               { printf("PRINT\n"); }
-"input"               { printf("INPUT\n"); }
-";"                   { printf("SEMICOLON\n"); }
-"<="                  { printf("LESSTHENEQ\n"); }
-">="                  { printf("MORETHENEQ\n"); }
-"<"                   { printf("LESSTHEN\n"); }
-">"                   { printf("MORETHEN\n"); }
-"+="                  { printf("MOREISEQUAL\n"); }
-"-="                  { printf("LESSISEQUAL\n"); }
-"=="                  { printf("ISEQUAL\n"); }
-"++"                  { printf("INCREMENT\n"); }
-"--"                  { printf("DECREMENT\n"); }
-"="                   { printf("ASSIGNMENT\n"); }
-","                   { printf("COMMA\n"); }
-":"                   { printf("COLON\n"); }
-"("                   { printf("LPAREN\n"); }
-")"                   { printf("RPAREN\n"); }
-"["                   { printf("LBRACK\n"); }
-"]"                   { printf("RBRACK\n"); }
-"{"                   { printf("LBRACE\n"); }
-"}"                   { printf("RBRACE\n"); }
-"."                   { printf("DOT\n"); }
-"+"                   { printf("PLUS\n"); }
-"-"                   { printf("MINUS\n"); }
-"*"                   { printf("MULTIP\n"); }
-"/"                   { printf("DIVIDE\n"); }
-[a-zA-Z][a-zA-Z0-9]*  { printf("ID(%s)\n",yytext); }
-.                     { printf("Invalid character(%s).\n",yytext); }
+[0-9]+                { yylval.iValue = atoi(yytext); 
+                        return NUMBER; }
+"begin"               { return(BEGIN_BLOCK); }
+"end"                 { return(END_BLOCK); }
+"int"                 {yylval.sValue = strdup("int"); 
+                        return TYPE;}
+"float"               {yylval.sValue = strdup("float"); 
+                        return TYPE;}
+"bool"                {yylval.sValue = strdup("bool"); 
+                        return TYPE;}
+"string"              {yylval.sValue = strdup("string"); 
+                        return TYPE;}
+"concat"              { return(CONCAT); }
+"lenght"              { return(LENGHT); }
+"and"                 { return(AND); }
+"or"                  { return(OR); }
+"not"                 { return(NOT); }
+"while"               { return(WHILE); }
+"in"                  { return(IN); }
+"do"                  { return(DO); }
+"for"                 { return(FOR); }
+"switch"              { return(SWITCH); }
+"case"                { return(CASE); }
+"break"               { return(BREAK); }
+"continue"            { return(CONTINUE); }
+"function"            { return(FUNCTION); }
+"procedure"           { return(PROCEDURE); }
+"if"                  { return(IF); }
+"then"                { return(THEN); }
+"else"                { return(ELSE); }
+"return"              { return(RETURN); }
+"print"               { return(PRINT); }
+"input"               { return(INPUT); }
+";"                   { return(SEMICOLON); }
+"<="                  { return(LESSTHENEQ); }
+">="                  { return(MORETHENEQ); }
+"<"                   { return(LESSTHEN); }
+">"                   { return(MORETHEN); }
+"+="                  { return(MOREISEQUAL); }
+"-="                  { return(LESSISEQUAL); }
+"=="                  { return(ISEQUAL); }
+"++"                  { return(INCREMENT); }
+"--"                  { return(DECREMENT); }
+"="                   { return(ASSIGNMENT); }
+","                   { return(COMMA); }
+":"                   { return(COLON); }
+"("                   { return(LPAREN); }
+")"                   { return(RPAREN); }
+"["                   { return(LBRACK); }
+"]"                   { return(RBRACK); }
+"{"                   { return(LBRACE); }
+"}"                   { return(RBRACE); }
+"."                   { return(DOT); }
+"+"                   { return(PLUS); }
+"-"                   { return(MINUS); }
+"*"                   { return(MULTIP); }
+"/"                   { return(DIVIDE); }
+.                     { yyerror("invalid character"); }
 
 %%
 
 #ifndef yywrap
    int yywrap (void) {return 1;}
 #endif
-
-int main(void)
-{
-  yylex();  
-  return 0;
-}

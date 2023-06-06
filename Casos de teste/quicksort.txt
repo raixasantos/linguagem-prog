@@ -1,4 +1,5 @@
-int quickSort(array arr) {
+begin
+function int quickSort(array arr) {
     tamanho = count(arr);
     if(tamanho <= 1) {
         return arr;
@@ -15,3 +16,4 @@ int quickSort(array arr) {
     }
     return arrayMerge(quickSort(esquerda), array(pivo), quickSort(direita));
 }
+end

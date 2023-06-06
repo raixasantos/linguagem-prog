@@ -18,53 +18,52 @@ extern char * yytext;
 
 %token <sValue> ID
 %token <sValue> TYPE
+%token CONCAT LENGHT AND OR NOT 
+%token WHILE IN DO FOR SWITCH CASE BREAK CONTINUE RETURN PRINT INPUT
 %token <iValue> NUMBER
-%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK WHILE DO IF THEN ELSE ASSIGN 
-
-%type <sValue> corpo
-%type <sValue> procedimento
-%type <sValue> funcao
-%type <sValue> subp
-%type <sValue> subps args args_aux ids ids_aux
+%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK IF  THEN ELSE LPAREN RPAREN COLON
+%token SEMICOLON COMMA
+%token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISEQUAL INCREMENT DECREMENT 
+%token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE
 
 %start programa
 
 %%
-programa : subps corpo
+programa : subps corpo                                               
 	     ;
 
-subps :
-      | subp subps 
+subps :                                                              
+     | subp subps                                                    
       ;
 
-subp : funcao   
-     | procedimento 
+subp : funcao                                                        
+     | procedimento                                                  
      ;
 
-funcao : FUNCTION ID '(' args ')' ':' TYPE corpo
+funcao : FUNCTION ID LPAREN args RPAREN COLON TYPE corpo             
        ;
 
-procedimento : PROCEDURE ID '(' args ')' corpo
+procedimento : PROCEDURE ID LPAREN args RPAREN corpo                 
              ;
 
-args : 
-     | args_aux
+args :                                                               
+     | args_aux                                                      
      ;
 
-args_aux : TYPE ids 
-         | TYPE ids ';' args_aux 
+args_aux : TYPE ids                                                  
+         | TYPE ids SEMICOLON args_aux                               
          ;                  
 
-ids :
-    | ids_aux 
+ids :                                                                
+    | ids_aux                                                        
     ;
 
-ids_aux : ID 
-        | ID ',' ids_aux
+ids_aux : ID                                                         
+        | ID COMMA ids_aux                                           
         ;            
 
-corpo : BEGIN_TOKEN END_TOKEN
-
+corpo : BEGIN_BLOCK END_BLOCK                                        
+     ;
 %%
 
 int main (void) {
