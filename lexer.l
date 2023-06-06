@@ -6,8 +6,8 @@
 
 [ \t\n]               ;
 [0-9]+                { printf("NUMBER(%s)\n",yytext); }
-"begin"               { printf("BEGIN\n"); }
-"end"                 { printf("END\n"); }
+"begin"               { printf("BEGIN_BLOCK\n"); }
+"end"                 { printf("END_BLOCK\n"); }
 "int"                 { printf("INT\n"); }
 "float"               { printf("FLOAT\n"); }
 "bool"                { printf("BOOL\n"); }
