@@ -1,0 +1,30 @@
+void tabuadaAdicao() {
+    print("tabuada de adicao do 5");
+    int numero = 5;
+    int indice = 1;
+    while (indice <= 10) {
+        int resultado = numero + indice;
+        print(numero + " + " + indice + " = " resultado);
+        indice++;
+    }
+}
+
+void tabuadaSubtracao() {
+    print("tabuada de subtracao do 6");
+    int numero = 6;
+    int indice = 1;
+    do {
+        int resultado = numero - indice;
+        print(numero + " - " + indice + " = " resultado);
+        indice++;
+    } while (indice <= 10);
+}
+
+void tabuadaMultiplicacao() {
+    print("tabuada de multiplicacao do 7");
+    int numero = 7;
+    for (int indice = 1; indice <= 10; indice++) {
+        int resultado = numero * indice;
+        print(numero + " * " + indice + " = " resultado);
+    }
+}
