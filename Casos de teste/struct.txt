@@ -1,0 +1,18 @@
+begin
+struct local {
+    int x;
+    int y;
+}
+main{
+    local minhaLocalização;
+    minhaLocalização.x = 512;
+    minhaLocalização.y = 382;
+    string textoX = "O valor X de minha localização é: ";
+    string textoY = "O valor Y de minha localização é: ";
+
+    print(textoX);
+    print(minhaLocalização.x);
+    print(textoY);
+    print(minhaLocalização.y);
+}
+end

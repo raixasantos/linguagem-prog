@@ -1,7 +1,14 @@
-string ehPar(int numero) {
+begin
+function string ehPar(int numero) {
     if (numero % 2 == 0) {
-        return "E par"
+        return "E par";
     } else {
-        return "Nao e par"
+        return "Nao e par";
     }
 }
+main{
+    int numero = 2;
+    string paridade = ehPar(numero);
+    print(paridade);
+}
+end

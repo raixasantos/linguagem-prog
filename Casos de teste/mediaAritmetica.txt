@@ -1,15 +1,16 @@
-boolean mediaAritmetica() {
-    int arr[] = {2, 66, 77, 5, 0, 1, 30, 6, 2, 1, 5};
-    int soma  = 0;
-
-    for(int i = 0; i < arr.lenght(); i++) {
-        soma += arr[i];
-    }
-
-    float medAritmetica = soma/arr.lenght();
-
-    if(medAritmetica >= 4 and medAritmetica <= 24) {
-        return true;
-    }
-    return false;
+begin
+function float mediaAritmetica(int num1, int num2) {
+    float resultado = (num1 + num2) / 2;
+    return resultado;
 }
+main{
+    int a = 150;
+    int b = 270;
+
+    string texto = "A média é: ";
+    int media = mediaAritmetica(a, b);
+
+    print(texto);
+    print(media);
+}
+end
