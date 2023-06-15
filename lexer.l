@@ -12,6 +12,7 @@
                         return NUMBER; }
 "begin"               { return(BEGIN_BLOCK); }
 "end"                 { return(END_BLOCK); }
+"main"                { return(MAIN_BLOCK); }
 "int"                 {yylval.sValue = strdup("int"); 
                         return TYPE;}
 "float"               {yylval.sValue = strdup("float"); 
@@ -65,6 +66,10 @@
 "-"                   { return(MINUS); }
 "*"                   { return(MULTIP); }
 "/"                   { return(DIVIDE); }
+"%"                   { return(MOD); }
+\"(\\.|[^"\\])*\"     { return(QUOT); }
+[a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
+                       return ID;}
 .                     { yyerror("invalid character"); }
 
 %%

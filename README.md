@@ -4,13 +4,13 @@ PRANS é uma linguagem desenvolvida para disciplina Engenharia de Linguagens.
 
 ## Como executar
 
-Siga as instruções abaixo para executar o analisador léxico:
+Siga as instruções abaixo para executar o analisador léxico e o analisador sintático:
 
-1. Certifique-se de ter o [Flex](https://github.com/westes/flex) e o [GCC](https://gcc.gnu.org/) instalados em seu sistema.
+1. Certifique-se de ter o [Flex](https://github.com/westes/flex), o YACC e o [GCC](https://gcc.gnu.org/) instalados em seu sistema.
 
-2. Faça o download do arquivo `lexer.l`, que contém as regras para o analisador léxico.
+2. Faça o download dos arquivos `lexer.l` e `parser.y`, que contém as regras para o analisador léxico e analisador sintático, respectivamente.
 
-3. No terminal, navegue até o diretório onde o arquivo `lexer.l` está localizado.
+3. No terminal, navegue até o diretório onde os arquivos `lexer.l` e `parser.y` estão localizados.
 
 4. Execute os seguintes comandos:
 
@@ -18,16 +18,16 @@ Abaixo estão os comandos que devem ser executados:
 
 ```bash
 $ flex lexer.l
-$ gcc lex.yy.c
+$ yacc parser.y -d -v
+$ gcc lex.yy.c y.tab.c -o a.out
+$ cd "Casos de teste"
 $ ./a.out < nomedocasodeteste.txt
 ```
 
 O primeiro comando (`flex lexer.l`) irá gerar o arquivo `lex.yy.c` a partir das regras definidas no arquivo `lexer.l`.
 
-O segundo comando (`gcc lex.yy.c`) irá compilar o arquivo `lex.yy.c` e gerar o executável `a.out`.
+O terceiro comando (`gcc lex.yy.c y.tab.c -o a.out`) irá compilar os arquivos e gerar o executável `a.out`.
 
-O terceiro comando (`./a.out < nomedocasodeteste.txt`) irá executar o analisador léxico, fornecendo como entrada o arquivo de teste `nomedocasodeteste.txt`. Certifique-se de substituir `nomedocasodeteste.txt` pelo nome do arquivo que você deseja analisar.
+O quarto comando (`./a.out < nomedocasodeteste.txt`) irá executar o analisador léxico e sintático, fornecendo como entrada o arquivo de teste `nomedocasodeteste.txt`. Certifique-se de substituir `nomedocasodeteste.txt` pelo nome do arquivo que você deseja analisar.
 
-Após a execução, o analisador léxico irá imprimir os tokens encontrados no arquivo de teste.
-
-**Observação:** Certifique-se de que você esteja na pasta 'Casos de teste' para executar o caso de teste: ```quicksort.txt```
+Após a execução, o analisador sintático irá imprimir apenas os erros encontrados no arquivo de teste.
