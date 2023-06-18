@@ -1,0 +1,16 @@
+begin
+function float mediaAritmetica(int num1, int num2) {
+    float resultado = (num1 + num2) / 2;
+    return resultado;
+}
+main{
+    int a = 150;
+    int b = 270;
+
+    string texto = "A média é: ";
+    int media = mediaAritmetica(a, b);
+
+    print(texto);
+    print(media);
+}
+end
