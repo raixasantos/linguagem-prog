@@ -1,5 +1,5 @@
 begin
-function float mediaAritmetica(int num1, int num2) {
+function float mediaAritmetica(int num1, num2) {
     float resultado = (num1 + num2) / 2;
     return resultado;
 }
