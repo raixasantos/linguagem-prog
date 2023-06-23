@@ -1,15 +1,16 @@
 %{
-#include <stdio.h>
+#include <stdio.h> // precisa para chamar funcoes como printf()
 #include <stdlib.h>
 #include <string.h>
 
-int yylex(void);
-int yyerror(char *s);
-extern int yylineno;
+int yylex(void); // retorna o numero correspondente ao token lido
+int yyerror(char *s); // chamada quando o parser encontra erro
+extern int yylineno; // trackear o numero da linha
 extern char * yytext;
 
 %}
 
+/* */
 %union {
 	int    iValue; 	/* integer value */
 	char   cValue; 	/* char value */
@@ -128,6 +129,20 @@ termo : ID
 const : 
       | ID const
       ;
+
+/*
+stmts:
+      | stmts_aux SEMICOLON
+      ;
+
+stmts_aux: stmt
+      | stmt SEMICOLON stmts_aux
+      ;
+stmt: ASSIGN
+      | IF_STMT
+      | FOR_ STMT
+      ;
+*/
 %%
 
 int main (void) {
