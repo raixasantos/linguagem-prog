@@ -10,7 +10,7 @@ extern int yylineno;
 extern char * yytext;
 extern FILE * yyin, * yyout;
 
-char * cat(char *, char *, char *, char *, char *, char *, char *, char *);
+char * cat(char *, char *, char *, char *, char *);
 
 %}
 
@@ -59,15 +59,17 @@ main : MAIN_BLOCK LBRACE block RBRACE
      ;
 
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE block RBRACE             
-                 {char * s1 = cat("function", " ", $2, " ", $3, " ", "(",  $5->code);
-                  char * s2 = cat(s1, ")\n", "{\n", $8->code, "}", "", "", "");
+                 {char * s1 = cat("function", " ", $2, " ", $3);
+                  char * s2 = cat(s1, " ", "(",  $5->code, ")\n");
+                  char * s3 = cat(s2, "{\n", $8->code, "}", "");
                   free(s1);
+                  free(s2);
                   free($2);
                   free($3);
                   freeRecord($5);
                   freeRecord($8);
-                  $$ = createRecord(s2, "");
-                  free(s2);
+                  $$ = createRecord(s3, "");
+                  free(s3);
                  }
             ;
 
@@ -173,11 +175,11 @@ int yyerror (char *msg) {
 	return 0;
 }
 
-char * cat(char * s1, char * s2, char * s3, char * s4, char * s5, char * s6, char * s7, char * s8){
+char * cat(char * s1, char * s2, char * s3, char * s4, char * s5){
   int tam;
   char * output;
 
-  tam = strlen(s1) + strlen(s2) + strlen(s3) + strlen(s4) + strlen(s5) + strlen(s6) + strlen(s7) + strlen(s8)+ 1;
+  tam = strlen(s1) + strlen(s2) + strlen(s3) + strlen(s4) + strlen(s5)+ 1;
   output = (char *) malloc(sizeof(char) * tam);
   
   if (!output){
@@ -185,7 +187,7 @@ char * cat(char * s1, char * s2, char * s3, char * s4, char * s5, char * s6, cha
     exit(0);
   }
   
-  sprintf(output, "%s%s%s%s%s%s%s%s", s1, s2, s3, s4, s5, s6, s7, s8);
+  sprintf(output, "%s%s%s%s%s", s1, s2, s3, s4, s5);
   
   return output;
 }
