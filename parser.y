@@ -2,11 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./lib/record.h"
 
 int yylex(void);
 int yyerror(char *s);
 extern int yylineno;
 extern char * yytext;
+extern FILE * yyin, * yyout;
+
+char * cat(char *, char *, char *, char *, char *, char *, char *, char *);
 
 %}
 
@@ -14,6 +18,7 @@ extern char * yytext;
 	int    iValue; 	/* integer value */
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
+      struct record * rec;
 };
 
 %token <sValue> ID
@@ -25,6 +30,9 @@ extern char * yytext;
 %token SEMICOLON COMMA
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD QUOT
+
+%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args block 
+%type <rec>  return
 
 %start programa
 
@@ -51,7 +59,17 @@ main : MAIN_BLOCK LBRACE block RBRACE
      ;
 
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE block RBRACE             
-       ;
+                 {char * s1 = cat("function", " ", $2, " ", $3, " ", "(",  $5->code);
+                  char * s2 = cat(s1, ")\n", "{\n", $8->code, "}", "", "", "");
+                  free(s1);
+                  free($2);
+                  free($3);
+                  freeRecord($5);
+                  freeRecord($8);
+                  $$ = createRecord(s2, "");
+                  free(s2);
+                 }
+            ;
 
 decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE block RBRACE                   
              ;
@@ -130,11 +148,44 @@ const :
       ;
 %%
 
-int main (void) {
-	return yyparse ( );
+
+int main (int argc, char ** argv) {
+ 	int codigo;
+
+    if (argc != 3) {
+       printf("Usage: $./compiler input.txt output.txt\nClosing application...\n");
+       exit(0);
+    }
+    
+    yyin = fopen(argv[1], "r");
+    yyout = fopen(argv[2], "w");
+
+    codigo = yyparse();
+
+    fclose(yyin);
+    fclose(yyout);
+
+	return codigo;
 }
 
 int yyerror (char *msg) {
 	fprintf (stderr, "%d: %s at '%s'\n", yylineno, msg, yytext);
 	return 0;
+}
+
+char * cat(char * s1, char * s2, char * s3, char * s4, char * s5, char * s6, char * s7, char * s8){
+  int tam;
+  char * output;
+
+  tam = strlen(s1) + strlen(s2) + strlen(s3) + strlen(s4) + strlen(s5) + strlen(s6) + strlen(s7) + strlen(s8)+ 1;
+  output = (char *) malloc(sizeof(char) * tam);
+  
+  if (!output){
+    printf("Allocation problem. Closing application...\n");
+    exit(0);
+  }
+  
+  sprintf(output, "%s%s%s%s%s%s%s%s", s1, s2, s3, s4, s5, s6, s7, s8);
+  
+  return output;
 }

@@ -1,0 +1,1376 @@
+Terminais sem uso na gramática
+
+    CONCAT
+    LENGHT
+    AND
+    OR
+    NOT
+    WHILE
+    IN
+    DO
+    FOR
+    SWITCH
+    CASE
+    BREAK
+    CONTINUE
+    INPUT
+    THEN
+    COLON
+    LESSTHENEQ
+    MORETHENEQ
+    LESSTHEN
+    MORETHEN
+    MOREISEQUAL
+    LESSISEQUAL
+    INCREMENT
+    DECREMENT
+    LBRACK
+    RBRACK
+    DOT
+    MOD
+
+
+Gramática
+
+    0 $accept: programa $end
+
+    1 programa: BEGIN_BLOCK decl_vars subps main END_BLOCK
+
+    2 decl_vars: %empty
+    3          | decl_var decl_vars
+
+    4 decl_var: TYPE ID ASSIGNMENT expressao SEMICOLON
+
+    5 subps: %empty
+    6      | subp subps
+
+    7 subp: decl_funcao
+    8     | decl_procedimento
+
+    9 main: MAIN_BLOCK LBRACE block RBRACE
+
+   10 decl_funcao: FUNCTION TYPE ID LPAREN args RPAREN LBRACE block RBRACE
+
+   11 decl_procedimento: PROCEDURE ID LPAREN args RPAREN LBRACE block RBRACE
+
+   12 args: %empty
+   13     | args_aux
+
+   14 args_aux: TYPE ids
+   15         | TYPE ids SEMICOLON args_aux
+
+   16 ids: %empty
+   17    | ids_aux
+
+   18 ids_aux: ID
+   19        | ID COMMA ids_aux
+
+   20 block: %empty
+   21      | decl_var block
+   22      | comando block
+
+   23 comando: condicional
+   24        | return
+   25        | saida
+
+   26 condicional: IF LPAREN expressao RPAREN LBRACE block RBRACE
+   27            | IF LPAREN expressao RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE
+
+   28 return: RETURN SEMICOLON
+   29       | RETURN expressao SEMICOLON
+
+   30 saida: PRINT LPAREN expressao RPAREN SEMICOLON
+
+   31 params: expressao
+   32       | expressao COMMA params
+
+   33 expressao: termo
+   34          | chamada_funcao
+   35          | ops
+   36          | ops ISEQUAL ops
+   37          | ops ISEQUAL termo
+   38          | termo ISEQUAL termo
+
+   39 chamada_funcao: ID LPAREN params RPAREN
+
+   40 ops: ops_1 PLUS ops_1
+   41    | ops_1 PLUS termo
+   42    | termo PLUS termo
+   43    | ops_1 MINUS ops_1
+   44    | ops_1 MINUS termo
+   45    | termo MINUS termo
+
+   46 ops_1: termo DIVIDE termo
+   47      | termo MULTIP termo
+
+   48 termo: ID
+   49      | NUMBER
+   50      | QUOT const QUOT
+   51      | LPAREN expressao RPAREN
+
+   52 const: %empty
+   53      | ID const
+
+
+Terminais, com as regras onde eles aparecem
+
+    $end (0) 0
+    error (256)
+    ID <sValue> (258) 4 10 11 18 19 39 48 53
+    TYPE <sValue> (259) 4 10 14 15
+    CONCAT (260)
+    LENGHT (261)
+    AND (262)
+    OR (263)
+    NOT (264)
+    WHILE (265)
+    IN (266)
+    DO (267)
+    FOR (268)
+    SWITCH (269)
+    CASE (270)
+    BREAK (271)
+    CONTINUE (272)
+    RETURN (273) 28 29
+    PRINT (274) 30
+    INPUT (275)
+    NUMBER <iValue> (276) 49
+    FUNCTION (277) 10
+    PROCEDURE (278) 11
+    BEGIN_BLOCK (279) 1
+    END_BLOCK (280) 1
+    MAIN_BLOCK (281) 9
+    IF (282) 26 27
+    THEN (283)
+    ELSE (284) 27
+    LPAREN (285) 10 11 26 27 30 39 51
+    RPAREN (286) 10 11 26 27 30 39 51
+    COLON (287)
+    SEMICOLON (288) 4 15 28 29 30
+    COMMA (289) 19 32
+    LESSTHENEQ (290)
+    MORETHENEQ (291)
+    LESSTHEN (292)
+    MORETHEN (293)
+    MOREISEQUAL (294)
+    LESSISEQUAL (295)
+    ISEQUAL (296) 36 37 38
+    INCREMENT (297)
+    DECREMENT (298)
+    ASSIGNMENT (299) 4
+    LBRACK (300)
+    RBRACK (301)
+    LBRACE (302) 9 10 11 26 27
+    RBRACE (303) 9 10 11 26 27
+    DOT (304)
+    PLUS (305) 40 41 42
+    MINUS (306) 43 44 45
+    MULTIP (307) 47
+    DIVIDE (308) 46
+    MOD (309)
+    QUOT (310) 50
+
+
+Não terminais com as regras onde eles aparecem
+
+    $accept (56)
+        à esquerda: 0
+    programa (57)
+        à esquerda: 1
+        à direita: 0
+    decl_vars <rec> (58)
+        à esquerda: 2 3
+        à direita: 1 3
+    decl_var <rec> (59)
+        à esquerda: 4
+        à direita: 3 21
+    subps <rec> (60)
+        à esquerda: 5 6
+        à direita: 1 6
+    subp <rec> (61)
+        à esquerda: 7 8
+        à direita: 6
+    main <rec> (62)
+        à esquerda: 9
+        à direita: 1
+    decl_funcao <rec> (63)
+        à esquerda: 10
+        à direita: 7
+    decl_procedimento <rec> (64)
+        à esquerda: 11
+        à direita: 8
+    args <rec> (65)
+        à esquerda: 12 13
+        à direita: 10 11
+    args_aux (66)
+        à esquerda: 14 15
+        à direita: 13 15
+    ids (67)
+        à esquerda: 16 17
+        à direita: 14 15
+    ids_aux (68)
+        à esquerda: 18 19
+        à direita: 17 19
+    block <rec> (69)
+        à esquerda: 20 21 22
+        à direita: 9 10 11 21 22 26 27
+    comando (70)
+        à esquerda: 23 24 25
+        à direita: 22
+    condicional (71)
+        à esquerda: 26 27
+        à direita: 23
+    return <rec> (72)
+        à esquerda: 28 29
+        à direita: 24
+    saida (73)
+        à esquerda: 30
+        à direita: 25
+    params (74)
+        à esquerda: 31 32
+        à direita: 32 39
+    expressao (75)
+        à esquerda: 33 34 35 36 37 38
+        à direita: 4 26 27 29 30 31 32 51
+    chamada_funcao (76)
+        à esquerda: 39
+        à direita: 34
+    ops (77)
+        à esquerda: 40 41 42 43 44 45
+        à direita: 35 36 37
+    ops_1 (78)
+        à esquerda: 46 47
+        à direita: 40 41 43 44
+    termo (79)
+        à esquerda: 48 49 50 51
+        à direita: 33 37 38 41 42 44 45 46 47
+    const (80)
+        à esquerda: 52 53
+        à direita: 50 53
+
+
+Estado 0
+
+    0 $accept: . programa $end
+
+    BEGIN_BLOCK  deslocar, e ir ao estado 1
+
+    programa  ir ao estado 2
+
+
+Estado 1
+
+    1 programa: BEGIN_BLOCK . decl_vars subps main END_BLOCK
+
+    TYPE  deslocar, e ir ao estado 3
+
+    $padrão  reduzir usando a regra 2 (decl_vars)
+
+    decl_vars  ir ao estado 4
+    decl_var   ir ao estado 5
+
+
+Estado 2
+
+    0 $accept: programa . $end
+
+    $end  deslocar, e ir ao estado 6
+
+
+Estado 3
+
+    4 decl_var: TYPE . ID ASSIGNMENT expressao SEMICOLON
+
+    ID  deslocar, e ir ao estado 7
+
+
+Estado 4
+
+    1 programa: BEGIN_BLOCK decl_vars . subps main END_BLOCK
+
+    FUNCTION   deslocar, e ir ao estado 8
+    PROCEDURE  deslocar, e ir ao estado 9
+
+    $padrão  reduzir usando a regra 5 (subps)
+
+    subps              ir ao estado 10
+    subp               ir ao estado 11
+    decl_funcao        ir ao estado 12
+    decl_procedimento  ir ao estado 13
+
+
+Estado 5
+
+    3 decl_vars: decl_var . decl_vars
+
+    TYPE  deslocar, e ir ao estado 3
+
+    $padrão  reduzir usando a regra 2 (decl_vars)
+
+    decl_vars  ir ao estado 14
+    decl_var   ir ao estado 5
+
+
+Estado 6
+
+    0 $accept: programa $end .
+
+    $padrão  aceitar
+
+
+Estado 7
+
+    4 decl_var: TYPE ID . ASSIGNMENT expressao SEMICOLON
+
+    ASSIGNMENT  deslocar, e ir ao estado 15
+
+
+Estado 8
+
+   10 decl_funcao: FUNCTION . TYPE ID LPAREN args RPAREN LBRACE block RBRACE
+
+    TYPE  deslocar, e ir ao estado 16
+
+
+Estado 9
+
+   11 decl_procedimento: PROCEDURE . ID LPAREN args RPAREN LBRACE block RBRACE
+
+    ID  deslocar, e ir ao estado 17
+
+
+Estado 10
+
+    1 programa: BEGIN_BLOCK decl_vars subps . main END_BLOCK
+
+    MAIN_BLOCK  deslocar, e ir ao estado 18
+
+    main  ir ao estado 19
+
+
+Estado 11
+
+    6 subps: subp . subps
+
+    FUNCTION   deslocar, e ir ao estado 8
+    PROCEDURE  deslocar, e ir ao estado 9
+
+    $padrão  reduzir usando a regra 5 (subps)
+
+    subps              ir ao estado 20
+    subp               ir ao estado 11
+    decl_funcao        ir ao estado 12
+    decl_procedimento  ir ao estado 13
+
+
+Estado 12
+
+    7 subp: decl_funcao .
+
+    $padrão  reduzir usando a regra 7 (subp)
+
+
+Estado 13
+
+    8 subp: decl_procedimento .
+
+    $padrão  reduzir usando a regra 8 (subp)
+
+
+Estado 14
+
+    3 decl_vars: decl_var decl_vars .
+
+    $padrão  reduzir usando a regra 3 (decl_vars)
+
+
+Estado 15
+
+    4 decl_var: TYPE ID ASSIGNMENT . expressao SEMICOLON
+
+    ID      deslocar, e ir ao estado 21
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    expressao       ir ao estado 25
+    chamada_funcao  ir ao estado 26
+    ops             ir ao estado 27
+    ops_1           ir ao estado 28
+    termo           ir ao estado 29
+
+
+Estado 16
+
+   10 decl_funcao: FUNCTION TYPE . ID LPAREN args RPAREN LBRACE block RBRACE
+
+    ID  deslocar, e ir ao estado 30
+
+
+Estado 17
+
+   11 decl_procedimento: PROCEDURE ID . LPAREN args RPAREN LBRACE block RBRACE
+
+    LPAREN  deslocar, e ir ao estado 31
+
+
+Estado 18
+
+    9 main: MAIN_BLOCK . LBRACE block RBRACE
+
+    LBRACE  deslocar, e ir ao estado 32
+
+
+Estado 19
+
+    1 programa: BEGIN_BLOCK decl_vars subps main . END_BLOCK
+
+    END_BLOCK  deslocar, e ir ao estado 33
+
+
+Estado 20
+
+    6 subps: subp subps .
+
+    $padrão  reduzir usando a regra 6 (subps)
+
+
+Estado 21
+
+   39 chamada_funcao: ID . LPAREN params RPAREN
+   48 termo: ID .
+
+    LPAREN  deslocar, e ir ao estado 34
+
+    $padrão  reduzir usando a regra 48 (termo)
+
+
+Estado 22
+
+   49 termo: NUMBER .
+
+    $padrão  reduzir usando a regra 49 (termo)
+
+
+Estado 23
+
+   51 termo: LPAREN . expressao RPAREN
+
+    ID      deslocar, e ir ao estado 21
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    expressao       ir ao estado 35
+    chamada_funcao  ir ao estado 26
+    ops             ir ao estado 27
+    ops_1           ir ao estado 28
+    termo           ir ao estado 29
+
+
+Estado 24
+
+   50 termo: QUOT . const QUOT
+
+    ID  deslocar, e ir ao estado 36
+
+    $padrão  reduzir usando a regra 52 (const)
+
+    const  ir ao estado 37
+
+
+Estado 25
+
+    4 decl_var: TYPE ID ASSIGNMENT expressao . SEMICOLON
+
+    SEMICOLON  deslocar, e ir ao estado 38
+
+
+Estado 26
+
+   34 expressao: chamada_funcao .
+
+    $padrão  reduzir usando a regra 34 (expressao)
+
+
+Estado 27
+
+   35 expressao: ops .
+   36          | ops . ISEQUAL ops
+   37          | ops . ISEQUAL termo
+
+    ISEQUAL  deslocar, e ir ao estado 39
+
+    $padrão  reduzir usando a regra 35 (expressao)
+
+
+Estado 28
+
+   40 ops: ops_1 . PLUS ops_1
+   41    | ops_1 . PLUS termo
+   43    | ops_1 . MINUS ops_1
+   44    | ops_1 . MINUS termo
+
+    PLUS   deslocar, e ir ao estado 40
+    MINUS  deslocar, e ir ao estado 41
+
+
+Estado 29
+
+   33 expressao: termo .
+   38          | termo . ISEQUAL termo
+   42 ops: termo . PLUS termo
+   45    | termo . MINUS termo
+   46 ops_1: termo . DIVIDE termo
+   47      | termo . MULTIP termo
+
+    ISEQUAL  deslocar, e ir ao estado 42
+    PLUS     deslocar, e ir ao estado 43
+    MINUS    deslocar, e ir ao estado 44
+    MULTIP   deslocar, e ir ao estado 45
+    DIVIDE   deslocar, e ir ao estado 46
+
+    $padrão  reduzir usando a regra 33 (expressao)
+
+
+Estado 30
+
+   10 decl_funcao: FUNCTION TYPE ID . LPAREN args RPAREN LBRACE block RBRACE
+
+    LPAREN  deslocar, e ir ao estado 47
+
+
+Estado 31
+
+   11 decl_procedimento: PROCEDURE ID LPAREN . args RPAREN LBRACE block RBRACE
+
+    TYPE  deslocar, e ir ao estado 48
+
+    $padrão  reduzir usando a regra 12 (args)
+
+    args      ir ao estado 49
+    args_aux  ir ao estado 50
+
+
+Estado 32
+
+    9 main: MAIN_BLOCK LBRACE . block RBRACE
+
+    TYPE    deslocar, e ir ao estado 3
+    RETURN  deslocar, e ir ao estado 51
+    PRINT   deslocar, e ir ao estado 52
+    IF      deslocar, e ir ao estado 53
+
+    $padrão  reduzir usando a regra 20 (block)
+
+    decl_var     ir ao estado 54
+    block        ir ao estado 55
+    comando      ir ao estado 56
+    condicional  ir ao estado 57
+    return       ir ao estado 58
+    saida        ir ao estado 59
+
+
+Estado 33
+
+    1 programa: BEGIN_BLOCK decl_vars subps main END_BLOCK .
+
+    $padrão  reduzir usando a regra 1 (programa)
+
+
+Estado 34
+
+   39 chamada_funcao: ID LPAREN . params RPAREN
+
+    ID      deslocar, e ir ao estado 21
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    params          ir ao estado 60
+    expressao       ir ao estado 61
+    chamada_funcao  ir ao estado 26
+    ops             ir ao estado 27
+    ops_1           ir ao estado 28
+    termo           ir ao estado 29
+
+
+Estado 35
+
+   51 termo: LPAREN expressao . RPAREN
+
+    RPAREN  deslocar, e ir ao estado 62
+
+
+Estado 36
+
+   53 const: ID . const
+
+    ID  deslocar, e ir ao estado 36
+
+    $padrão  reduzir usando a regra 52 (const)
+
+    const  ir ao estado 63
+
+
+Estado 37
+
+   50 termo: QUOT const . QUOT
+
+    QUOT  deslocar, e ir ao estado 64
+
+
+Estado 38
+
+    4 decl_var: TYPE ID ASSIGNMENT expressao SEMICOLON .
+
+    $padrão  reduzir usando a regra 4 (decl_var)
+
+
+Estado 39
+
+   36 expressao: ops ISEQUAL . ops
+   37          | ops ISEQUAL . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    ops    ir ao estado 66
+    ops_1  ir ao estado 28
+    termo  ir ao estado 67
+
+
+Estado 40
+
+   40 ops: ops_1 PLUS . ops_1
+   41    | ops_1 PLUS . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    ops_1  ir ao estado 68
+    termo  ir ao estado 69
+
+
+Estado 41
+
+   43 ops: ops_1 MINUS . ops_1
+   44    | ops_1 MINUS . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    ops_1  ir ao estado 70
+    termo  ir ao estado 71
+
+
+Estado 42
+
+   38 expressao: termo ISEQUAL . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    termo  ir ao estado 72
+
+
+Estado 43
+
+   42 ops: termo PLUS . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    termo  ir ao estado 73
+
+
+Estado 44
+
+   45 ops: termo MINUS . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    termo  ir ao estado 74
+
+
+Estado 45
+
+   47 ops_1: termo MULTIP . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    termo  ir ao estado 75
+
+
+Estado 46
+
+   46 ops_1: termo DIVIDE . termo
+
+    ID      deslocar, e ir ao estado 65
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    termo  ir ao estado 76
+
+
+Estado 47
+
+   10 decl_funcao: FUNCTION TYPE ID LPAREN . args RPAREN LBRACE block RBRACE
+
+    TYPE  deslocar, e ir ao estado 48
+
+    $padrão  reduzir usando a regra 12 (args)
+
+    args      ir ao estado 77
+    args_aux  ir ao estado 50
+
+
+Estado 48
+
+   14 args_aux: TYPE . ids
+   15         | TYPE . ids SEMICOLON args_aux
+
+    ID  deslocar, e ir ao estado 78
+
+    $padrão  reduzir usando a regra 16 (ids)
+
+    ids      ir ao estado 79
+    ids_aux  ir ao estado 80
+
+
+Estado 49
+
+   11 decl_procedimento: PROCEDURE ID LPAREN args . RPAREN LBRACE block RBRACE
+
+    RPAREN  deslocar, e ir ao estado 81
+
+
+Estado 50
+
+   13 args: args_aux .
+
+    $padrão  reduzir usando a regra 13 (args)
+
+
+Estado 51
+
+   28 return: RETURN . SEMICOLON
+   29       | RETURN . expressao SEMICOLON
+
+    ID         deslocar, e ir ao estado 21
+    NUMBER     deslocar, e ir ao estado 22
+    LPAREN     deslocar, e ir ao estado 23
+    SEMICOLON  deslocar, e ir ao estado 82
+    QUOT       deslocar, e ir ao estado 24
+
+    expressao       ir ao estado 83
+    chamada_funcao  ir ao estado 26
+    ops             ir ao estado 27
+    ops_1           ir ao estado 28
+    termo           ir ao estado 29
+
+
+Estado 52
+
+   30 saida: PRINT . LPAREN expressao RPAREN SEMICOLON
+
+    LPAREN  deslocar, e ir ao estado 84
+
+
+Estado 53
+
+   26 condicional: IF . LPAREN expressao RPAREN LBRACE block RBRACE
+   27            | IF . LPAREN expressao RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE
+
+    LPAREN  deslocar, e ir ao estado 85
+
+
+Estado 54
+
+   21 block: decl_var . block
+
+    TYPE    deslocar, e ir ao estado 3
+    RETURN  deslocar, e ir ao estado 51
+    PRINT   deslocar, e ir ao estado 52
+    IF      deslocar, e ir ao estado 53
+
+    $padrão  reduzir usando a regra 20 (block)
+
+    decl_var     ir ao estado 54
+    block        ir ao estado 86
+    comando      ir ao estado 56
+    condicional  ir ao estado 57
+    return       ir ao estado 58
+    saida        ir ao estado 59
+
+
+Estado 55
+
+    9 main: MAIN_BLOCK LBRACE block . RBRACE
+
+    RBRACE  deslocar, e ir ao estado 87
+
+
+Estado 56
+
+   22 block: comando . block
+
+    TYPE    deslocar, e ir ao estado 3
+    RETURN  deslocar, e ir ao estado 51
+    PRINT   deslocar, e ir ao estado 52
+    IF      deslocar, e ir ao estado 53
+
+    $padrão  reduzir usando a regra 20 (block)
+
+    decl_var     ir ao estado 54
+    block        ir ao estado 88
+    comando      ir ao estado 56
+    condicional  ir ao estado 57
+    return       ir ao estado 58
+    saida        ir ao estado 59
+
+
+Estado 57
+
+   23 comando: condicional .
+
+    $padrão  reduzir usando a regra 23 (comando)
+
+
+Estado 58
+
+   24 comando: return .
+
+    $padrão  reduzir usando a regra 24 (comando)
+
+
+Estado 59
+
+   25 comando: saida .
+
+    $padrão  reduzir usando a regra 25 (comando)
+
+
+Estado 60
+
+   39 chamada_funcao: ID LPAREN params . RPAREN
+
+    RPAREN  deslocar, e ir ao estado 89
+
+
+Estado 61
+
+   31 params: expressao .
+   32       | expressao . COMMA params
+
+    COMMA  deslocar, e ir ao estado 90
+
+    $padrão  reduzir usando a regra 31 (params)
+
+
+Estado 62
+
+   51 termo: LPAREN expressao RPAREN .
+
+    $padrão  reduzir usando a regra 51 (termo)
+
+
+Estado 63
+
+   53 const: ID const .
+
+    $padrão  reduzir usando a regra 53 (const)
+
+
+Estado 64
+
+   50 termo: QUOT const QUOT .
+
+    $padrão  reduzir usando a regra 50 (termo)
+
+
+Estado 65
+
+   48 termo: ID .
+
+    $padrão  reduzir usando a regra 48 (termo)
+
+
+Estado 66
+
+   36 expressao: ops ISEQUAL ops .
+
+    $padrão  reduzir usando a regra 36 (expressao)
+
+
+Estado 67
+
+   37 expressao: ops ISEQUAL termo .
+   42 ops: termo . PLUS termo
+   45    | termo . MINUS termo
+   46 ops_1: termo . DIVIDE termo
+   47      | termo . MULTIP termo
+
+    PLUS    deslocar, e ir ao estado 43
+    MINUS   deslocar, e ir ao estado 44
+    MULTIP  deslocar, e ir ao estado 45
+    DIVIDE  deslocar, e ir ao estado 46
+
+    $padrão  reduzir usando a regra 37 (expressao)
+
+
+Estado 68
+
+   40 ops: ops_1 PLUS ops_1 .
+
+    $padrão  reduzir usando a regra 40 (ops)
+
+
+Estado 69
+
+   41 ops: ops_1 PLUS termo .
+   46 ops_1: termo . DIVIDE termo
+   47      | termo . MULTIP termo
+
+    MULTIP  deslocar, e ir ao estado 45
+    DIVIDE  deslocar, e ir ao estado 46
+
+    $padrão  reduzir usando a regra 41 (ops)
+
+
+Estado 70
+
+   43 ops: ops_1 MINUS ops_1 .
+
+    $padrão  reduzir usando a regra 43 (ops)
+
+
+Estado 71
+
+   44 ops: ops_1 MINUS termo .
+   46 ops_1: termo . DIVIDE termo
+   47      | termo . MULTIP termo
+
+    MULTIP  deslocar, e ir ao estado 45
+    DIVIDE  deslocar, e ir ao estado 46
+
+    $padrão  reduzir usando a regra 44 (ops)
+
+
+Estado 72
+
+   38 expressao: termo ISEQUAL termo .
+
+    $padrão  reduzir usando a regra 38 (expressao)
+
+
+Estado 73
+
+   42 ops: termo PLUS termo .
+
+    $padrão  reduzir usando a regra 42 (ops)
+
+
+Estado 74
+
+   45 ops: termo MINUS termo .
+
+    $padrão  reduzir usando a regra 45 (ops)
+
+
+Estado 75
+
+   47 ops_1: termo MULTIP termo .
+
+    $padrão  reduzir usando a regra 47 (ops_1)
+
+
+Estado 76
+
+   46 ops_1: termo DIVIDE termo .
+
+    $padrão  reduzir usando a regra 46 (ops_1)
+
+
+Estado 77
+
+   10 decl_funcao: FUNCTION TYPE ID LPAREN args . RPAREN LBRACE block RBRACE
+
+    RPAREN  deslocar, e ir ao estado 91
+
+
+Estado 78
+
+   18 ids_aux: ID .
+   19        | ID . COMMA ids_aux
+
+    COMMA  deslocar, e ir ao estado 92
+
+    $padrão  reduzir usando a regra 18 (ids_aux)
+
+
+Estado 79
+
+   14 args_aux: TYPE ids .
+   15         | TYPE ids . SEMICOLON args_aux
+
+    SEMICOLON  deslocar, e ir ao estado 93
+
+    $padrão  reduzir usando a regra 14 (args_aux)
+
+
+Estado 80
+
+   17 ids: ids_aux .
+
+    $padrão  reduzir usando a regra 17 (ids)
+
+
+Estado 81
+
+   11 decl_procedimento: PROCEDURE ID LPAREN args RPAREN . LBRACE block RBRACE
+
+    LBRACE  deslocar, e ir ao estado 94
+
+
+Estado 82
+
+   28 return: RETURN SEMICOLON .
+
+    $padrão  reduzir usando a regra 28 (return)
+
+
+Estado 83
+
+   29 return: RETURN expressao . SEMICOLON
+
+    SEMICOLON  deslocar, e ir ao estado 95
+
+
+Estado 84
+
+   30 saida: PRINT LPAREN . expressao RPAREN SEMICOLON
+
+    ID      deslocar, e ir ao estado 21
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    expressao       ir ao estado 96
+    chamada_funcao  ir ao estado 26
+    ops             ir ao estado 27
+    ops_1           ir ao estado 28
+    termo           ir ao estado 29
+
+
+Estado 85
+
+   26 condicional: IF LPAREN . expressao RPAREN LBRACE block RBRACE
+   27            | IF LPAREN . expressao RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE
+
+    ID      deslocar, e ir ao estado 21
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    expressao       ir ao estado 97
+    chamada_funcao  ir ao estado 26
+    ops             ir ao estado 27
+    ops_1           ir ao estado 28
+    termo           ir ao estado 29
+
+
+Estado 86
+
+   21 block: decl_var block .
+
+    $padrão  reduzir usando a regra 21 (block)
+
+
+Estado 87
+
+    9 main: MAIN_BLOCK LBRACE block RBRACE .
+
+    $padrão  reduzir usando a regra 9 (main)
+
+
+Estado 88
+
+   22 block: comando block .
+
+    $padrão  reduzir usando a regra 22 (block)
+
+
+Estado 89
+
+   39 chamada_funcao: ID LPAREN params RPAREN .
+
+    $padrão  reduzir usando a regra 39 (chamada_funcao)
+
+
+Estado 90
+
+   32 params: expressao COMMA . params
+
+    ID      deslocar, e ir ao estado 21
+    NUMBER  deslocar, e ir ao estado 22
+    LPAREN  deslocar, e ir ao estado 23
+    QUOT    deslocar, e ir ao estado 24
+
+    params          ir ao estado 98
+    expressao       ir ao estado 61
+    chamada_funcao  ir ao estado 26
+    ops             ir ao estado 27
+    ops_1           ir ao estado 28
+    termo           ir ao estado 29
+
+
+Estado 91
+
+   10 decl_funcao: FUNCTION TYPE ID LPAREN args RPAREN . LBRACE block RBRACE
+
+    LBRACE  deslocar, e ir ao estado 99
+
+
+Estado 92
+
+   19 ids_aux: ID COMMA . ids_aux
+
+    ID  deslocar, e ir ao estado 78
+
+    ids_aux  ir ao estado 100
+
+
+Estado 93
+
+   15 args_aux: TYPE ids SEMICOLON . args_aux
+
+    TYPE  deslocar, e ir ao estado 48
+
+    args_aux  ir ao estado 101
+
+
+Estado 94
+
+   11 decl_procedimento: PROCEDURE ID LPAREN args RPAREN LBRACE . block RBRACE
+
+    TYPE    deslocar, e ir ao estado 3
+    RETURN  deslocar, e ir ao estado 51
+    PRINT   deslocar, e ir ao estado 52
+    IF      deslocar, e ir ao estado 53
+
+    $padrão  reduzir usando a regra 20 (block)
+
+    decl_var     ir ao estado 54
+    block        ir ao estado 102
+    comando      ir ao estado 56
+    condicional  ir ao estado 57
+    return       ir ao estado 58
+    saida        ir ao estado 59
+
+
+Estado 95
+
+   29 return: RETURN expressao SEMICOLON .
+
+    $padrão  reduzir usando a regra 29 (return)
+
+
+Estado 96
+
+   30 saida: PRINT LPAREN expressao . RPAREN SEMICOLON
+
+    RPAREN  deslocar, e ir ao estado 103
+
+
+Estado 97
+
+   26 condicional: IF LPAREN expressao . RPAREN LBRACE block RBRACE
+   27            | IF LPAREN expressao . RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE
+
+    RPAREN  deslocar, e ir ao estado 104
+
+
+Estado 98
+
+   32 params: expressao COMMA params .
+
+    $padrão  reduzir usando a regra 32 (params)
+
+
+Estado 99
+
+   10 decl_funcao: FUNCTION TYPE ID LPAREN args RPAREN LBRACE . block RBRACE
+
+    TYPE    deslocar, e ir ao estado 3
+    RETURN  deslocar, e ir ao estado 51
+    PRINT   deslocar, e ir ao estado 52
+    IF      deslocar, e ir ao estado 53
+
+    $padrão  reduzir usando a regra 20 (block)
+
+    decl_var     ir ao estado 54
+    block        ir ao estado 105
+    comando      ir ao estado 56
+    condicional  ir ao estado 57
+    return       ir ao estado 58
+    saida        ir ao estado 59
+
+
+Estado 100
+
+   19 ids_aux: ID COMMA ids_aux .
+
+    $padrão  reduzir usando a regra 19 (ids_aux)
+
+
+Estado 101
+
+   15 args_aux: TYPE ids SEMICOLON args_aux .
+
+    $padrão  reduzir usando a regra 15 (args_aux)
+
+
+Estado 102
+
+   11 decl_procedimento: PROCEDURE ID LPAREN args RPAREN LBRACE block . RBRACE
+
+    RBRACE  deslocar, e ir ao estado 106
+
+
+Estado 103
+
+   30 saida: PRINT LPAREN expressao RPAREN . SEMICOLON
+
+    SEMICOLON  deslocar, e ir ao estado 107
+
+
+Estado 104
+
+   26 condicional: IF LPAREN expressao RPAREN . LBRACE block RBRACE
+   27            | IF LPAREN expressao RPAREN . LBRACE block RBRACE ELSE LBRACE block RBRACE
+
+    LBRACE  deslocar, e ir ao estado 108
+
+
+Estado 105
+
+   10 decl_funcao: FUNCTION TYPE ID LPAREN args RPAREN LBRACE block . RBRACE
+
+    RBRACE  deslocar, e ir ao estado 109
+
+
+Estado 106
+
+   11 decl_procedimento: PROCEDURE ID LPAREN args RPAREN LBRACE block RBRACE .
+
+    $padrão  reduzir usando a regra 11 (decl_procedimento)
+
+
+Estado 107
+
+   30 saida: PRINT LPAREN expressao RPAREN SEMICOLON .
+
+    $padrão  reduzir usando a regra 30 (saida)
+
+
+Estado 108
+
+   26 condicional: IF LPAREN expressao RPAREN LBRACE . block RBRACE
+   27            | IF LPAREN expressao RPAREN LBRACE . block RBRACE ELSE LBRACE block RBRACE
+
+    TYPE    deslocar, e ir ao estado 3
+    RETURN  deslocar, e ir ao estado 51
+    PRINT   deslocar, e ir ao estado 52
+    IF      deslocar, e ir ao estado 53
+
+    $padrão  reduzir usando a regra 20 (block)
+
+    decl_var     ir ao estado 54
+    block        ir ao estado 110
+    comando      ir ao estado 56
+    condicional  ir ao estado 57
+    return       ir ao estado 58
+    saida        ir ao estado 59
+
+
+Estado 109
+
+   10 decl_funcao: FUNCTION TYPE ID LPAREN args RPAREN LBRACE block RBRACE .
+
+    $padrão  reduzir usando a regra 10 (decl_funcao)
+
+
+Estado 110
+
+   26 condicional: IF LPAREN expressao RPAREN LBRACE block . RBRACE
+   27            | IF LPAREN expressao RPAREN LBRACE block . RBRACE ELSE LBRACE block RBRACE
+
+    RBRACE  deslocar, e ir ao estado 111
+
+
+Estado 111
+
+   26 condicional: IF LPAREN expressao RPAREN LBRACE block RBRACE .
+   27            | IF LPAREN expressao RPAREN LBRACE block RBRACE . ELSE LBRACE block RBRACE
+
+    ELSE  deslocar, e ir ao estado 112
+
+    $padrão  reduzir usando a regra 26 (condicional)
+
+
+Estado 112
+
+   27 condicional: IF LPAREN expressao RPAREN LBRACE block RBRACE ELSE . LBRACE block RBRACE
+
+    LBRACE  deslocar, e ir ao estado 113
+
+
+Estado 113
+
+   27 condicional: IF LPAREN expressao RPAREN LBRACE block RBRACE ELSE LBRACE . block RBRACE
+
+    TYPE    deslocar, e ir ao estado 3
+    RETURN  deslocar, e ir ao estado 51
+    PRINT   deslocar, e ir ao estado 52
+    IF      deslocar, e ir ao estado 53
+
+    $padrão  reduzir usando a regra 20 (block)
+
+    decl_var     ir ao estado 54
+    block        ir ao estado 114
+    comando      ir ao estado 56
+    condicional  ir ao estado 57
+    return       ir ao estado 58
+    saida        ir ao estado 59
+
+
+Estado 114
+
+   27 condicional: IF LPAREN expressao RPAREN LBRACE block RBRACE ELSE LBRACE block . RBRACE
+
+    RBRACE  deslocar, e ir ao estado 115
+
+
+Estado 115
+
+   27 condicional: IF LPAREN expressao RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE .
+
+    $padrão  reduzir usando a regra 27 (condicional)
