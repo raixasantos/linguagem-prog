@@ -1,13 +1,14 @@
 %{
   #include <stdio.h>  
   #include "y.tab.h"
-  
+  int nolineo = 0;  
   extern int yyerror (char *msg);  
 %}
 
 %%
 
-[ \t\n]               ;
+[ \t]                 ;
+[ \n]                 { nolineo = nolineo + 1;}
 [0-9]+                { yylval.iValue = atoi(yytext); 
                         return NUMBER; }
 "begin"               { return(BEGIN_BLOCK); }
