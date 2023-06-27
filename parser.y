@@ -31,8 +31,8 @@ char * cat(char *, char *, char *, char *, char *);
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD QUOT
 
-%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args block 
-%type <rec>  return
+%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento expressao chamada_funcao
+%type <rec> args block termo ops params return
 
 %start programa
 
@@ -59,21 +59,28 @@ main : MAIN_BLOCK LBRACE block RBRACE
      ;
 
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE block RBRACE             
-                 {char * s1 = cat("function", " ", $2, " ", $3);
-                  char * s2 = cat(s1, " ", "(",  $5->code, ")\n");
-                  char * s3 = cat(s2, "{\n", $8->code, "}", "");
+                 {char * s1 = cat($2, " ", $3, "(", $5->code);
+                  char * s2 = cat(s1, ")\n", "{\n", $8->code, "}");
                   free(s1);
-                  free(s2);
                   free($2);
                   free($3);
                   freeRecord($5);
                   freeRecord($8);
-                  $$ = createRecord(s3, "");
-                  free(s3);
+                  $$ = createRecord(s2, "");
+                  free(s2);
                  }
             ;
 
-decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE block RBRACE                   
+decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE block RBRACE  
+                  {char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
+                  char * s2 = cat(s1, $7->code, "}", "", "");
+                  free(s1);
+                  free($2);
+                  freeRecord($4);
+                  freeRecord($7);
+                  $$ = createRecord(s2, "");
+                  free(s2);
+                 }                 
              ;
 
 args :                                                               
@@ -122,9 +129,16 @@ expressao : termo
           | ops ISEQUAL ops
           | ops ISEQUAL termo
           | termo ISEQUAL termo
+
+          
           ;
 
 chamada_funcao : ID LPAREN params RPAREN
+                  {char * s1 = cat($1, "(", $3->code, ")", ";");
+                  free(s1);
+                  free($1);
+                  freeRecord($3);
+                  }
                ;
 
 ops : ops_1 PLUS ops_1
