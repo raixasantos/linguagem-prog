@@ -31,24 +31,45 @@ char * cat(char *, char *, char *, char *, char *);
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD QUOT
 
-%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento expressao chamada_funcao
-%type <rec> args block termo ops params return
+%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao condicional chamada_funcao
+%type <rec> ids_aux args block termo ops params return
 
 %start programa
 
 %%
-programa : BEGIN_BLOCK decl_vars subps main END_BLOCK                                              
+programa : BEGIN_BLOCK decl_vars subps main END_BLOCK
+            {fprintf(yyout, "%s\n%s\n%s", $2->code, $3->code, $4->code);
+            freeRecord($2);
+            freeRecord($3);
+            freeRecord($4);                        
+            }                                            
 	    ;
 
-decl_vars : 
-          | decl_var decl_vars
+decl_vars :                    {$$ = createRecord("","");}
+          | decl_var decl_vars {char * s = cat($1->code, "\n", $2->code, "", "");
+                               freeRecord($1);
+                               freeRecord($2);
+                               $$ = createRecord(s, "");
+                               free(s);
+                               }
           ;
 
 decl_var : TYPE ID ASSIGNMENT expressao SEMICOLON
+            {char * s = cat($1, " ", $2, ";", "");
+            free($1);
+            free($2);
+            $$ = createRecord(s, "");
+            free(s);
+            }
          ;
 
-subps :                                                              
-      | subp subps                                                    
+subps :            {$$ = createRecord("","");}                                        
+      | subp subps {char * s = cat($1->code, "\n", $2->code, "", "");
+                   freeRecord($1);
+                   freeRecord($2);
+                   $$ = createRecord(s, "");
+                   free(s);
+                   }                                          
       ;
 
 subp : decl_funcao                                                        
@@ -56,6 +77,13 @@ subp : decl_funcao
      ;
 
 main : MAIN_BLOCK LBRACE block RBRACE
+            {char * s1 = cat("main", "(", ")", "{", $3->code);
+            char * s2 = cat(s1, "}", "", "", "");
+            free(s1);
+            freeRecord($3);
+            $$ = createRecord(s2, "");
+            free(s2);
+            }
      ;
 
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE block RBRACE             
@@ -72,27 +100,27 @@ decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE block RBRACE
             ;
 
 decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE block RBRACE  
-                  {char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
-                  char * s2 = cat(s1, $7->code, "}", "", "");
-                  free(s1);
-                  free($2);
-                  freeRecord($4);
-                  freeRecord($7);
-                  $$ = createRecord(s2, "");
-                  free(s2);
-                 }                 
+                        {char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
+                        char * s2 = cat(s1, $7->code, "}", "", "");
+                        free(s1);
+                        free($2);
+                        freeRecord($4);
+                        freeRecord($7);
+                        $$ = createRecord(s2, "");
+                        free(s2);
+                        }                 
              ;
 
-args :                                                               
-     | args_aux                                                      
+args :          {$$ = createRecord("","");}                                                            
+     | args_aux {$$ = $1;}                                                 
      ;
 
-args_aux : TYPE ids                                                  
+args_aux : TYPE ids                                         
          | TYPE ids SEMICOLON args_aux                               
          ;                  
 
-ids :                                                                
-    | ids_aux                                                        
+ids :         {$$ = createRecord("","");}                                                         
+    | ids_aux {$$ = $1;}                                                    
     ;
 
 ids_aux : ID                                                         
@@ -110,11 +138,39 @@ comando : condicional
         ;             
 
 condicional : IF LPAREN expressao RPAREN LBRACE block RBRACE 
+                  {char * s1 = cat("if", "(", $3->code, ")", "{\n");
+                  char * s2 = cat(s1, $6->code, "}", "", "");
+                  free(s1);
+                  freeRecord($3);
+                  freeRecord($6);
+                  $$ = createRecord(s2, "");
+                  free(s2);
+                  }
             | IF LPAREN expressao RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE
+                  {char * s1 = cat("if", "(", $3->code, ")", "{\n");
+                  char * s2 = cat(s1, $6->code, "}", "else", "{");
+                  char * s3 = cat(s2, $10->code, "}", "", "");
+                  free(s1);
+                  free(s2);
+                  freeRecord($3);
+                  freeRecord($6);
+                  freeRecord($10);
+                  $$ = createRecord(s3, "");
+                  free(s3);
+                  }
             ;
 
-return : RETURN SEMICOLON
+return : RETURN SEMICOLON 
+            {char * s = cat("return", " ", ";", "", "");
+            $$ = createRecord(s, "");
+            free(s);
+            }
        | RETURN expressao SEMICOLON
+            {char * s = cat("return", " ", $2->code, ";", "");
+            freeRecord($2);
+            $$ = createRecord(s, "");
+            free(s);
+            }
        ;
 
 saida : PRINT LPAREN expressao RPAREN SEMICOLON
@@ -129,8 +185,6 @@ expressao : termo
           | ops ISEQUAL ops
           | ops ISEQUAL termo
           | termo ISEQUAL termo
-
-          
           ;
 
 chamada_funcao : ID LPAREN params RPAREN
