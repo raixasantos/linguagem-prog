@@ -7,7 +7,7 @@ main{
     int a = 150;
     int b = 270;
 
-    string texto = "A";
+    string texto = "A média é: ";
     int media = mediaAritmetica(a, b);
 
     print(texto);

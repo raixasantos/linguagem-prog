@@ -120,6 +120,7 @@ factor : ID
       | NUMBER
       | LIT_STRING
       | LPAREN expressao RPAREN
+      | chamada_funcao
       ;
 
 relacional_ops : ISEQUAL
@@ -136,6 +137,7 @@ prim_ops : POWER
 
 sec_ops : DIVIDE
       | MULTIP
+      | MOD
     ;
 
 terc_ops : PLUS
