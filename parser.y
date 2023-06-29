@@ -25,7 +25,7 @@ extern char * yytext;
 %token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE LPAREN RPAREN COLON
 %token SEMICOLON COMMA
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISEQUAL INCREMENT DECREMENT 
-%token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD QUOT
+%token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD LIT_STRING POWER
 
 %start programa
 
@@ -37,7 +37,7 @@ decl_vars :
           | decl_var decl_vars
           ;
 
-decl_var : TYPE ID ASSIGNMENT expressao SEMICOLON
+decl_var : TYPE ID ASSIGNMENT expressao
          ;
 
 subps :                                                              
@@ -48,13 +48,13 @@ subp : decl_funcao
      | decl_procedimento                                                  
      ;
 
-main : MAIN_BLOCK LBRACE block RBRACE
+main : MAIN_BLOCK LBRACE stmts RBRACE
      ;
 
-decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE block RBRACE             
+decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
        ;
 
-decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE block RBRACE                   
+decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE                   
              ;
 
 args :                                                               
@@ -72,63 +72,77 @@ ids :
 ids_aux : ID                                                         
         | ID COMMA ids_aux                                           
         ;            
-
-block : 
-      | decl_var block 
-      | comando block                                     
+stmts:
+      | stmts_aux SEMICOLON
       ;
 
-comando : condicional
-        | return
-        | saida
-        ;             
+stmts_aux: stmt
+      | stmt SEMICOLON stmts_aux
+      ;
+stmt: decl_var
+      | condicional
+      | return
+      | saida
+      ;       
 
-condicional : IF LPAREN expressao RPAREN LBRACE block RBRACE 
-            | IF LPAREN expressao RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE
+condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE 
+            | IF LPAREN expressao RPAREN LBRACE stmts RBRACE ELSE LBRACE stmts RBRACE
             ;
 
-return : RETURN SEMICOLON
-       | RETURN expressao SEMICOLON
+return : RETURN
+       | RETURN expressao
        ;
 
-saida : PRINT LPAREN expressao RPAREN SEMICOLON
+saida : PRINT LPAREN expressao RPAREN
 
 params : expressao
        | expressao COMMA params
        ;
 
-expressao : termo
-          | chamada_funcao
-          | ops
-          | ops ISEQUAL ops
-          | ops ISEQUAL termo
-          | termo ISEQUAL termo
+expressao : term_terc
+          | expressao relacional_ops term_terc
+          | 
           ;
 
-chamada_funcao : ID LPAREN params RPAREN
-               ;
+term_terc : term_sec terc_ops term_terc
+      |term_sec
+      ; 
 
-ops : ops_1 PLUS ops_1
-    | ops_1 PLUS termo
-    | termo PLUS termo
-    | ops_1 MINUS ops_1
-    | ops_1 MINUS termo
-    | termo MINUS termo
-    ;
+term_sec : term_prim sec_ops term_sec
+      |term_prim
+      ;
+      
+term_prim: factor prim_ops term_prim
+      |factor
+      ;    
 
-ops_1 : termo DIVIDE termo
-    | termo MULTIP termo
-    ;
-
-termo : ID
+factor : ID
       | NUMBER
-      | QUOT const QUOT
+      | LIT_STRING
       | LPAREN expressao RPAREN
       ;
 
-const : 
-      | ID const
-      ;
+relacional_ops : ISEQUAL
+          | LESSTHENEQ
+          | MORETHENEQ
+          | LESSTHEN
+          | MORETHEN
+          | MOREISEQUAL
+          | LESSISEQUAL
+          ;
+
+prim_ops : POWER 
+    ;
+
+sec_ops : DIVIDE
+      | MULTIP
+    ;
+
+terc_ops : PLUS
+    | MINUS
+    ;
+chamada_funcao : ID LPAREN params RPAREN
+                  ;
 %%
 
 int main (void) {

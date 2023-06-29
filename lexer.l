@@ -1,7 +1,7 @@
 %{
   #include <stdio.h>  
   #include "y.tab.h"
-  int nolineo = 0;  
+  int nolineo = 1;  
   extern int yyerror (char *msg);  
 %}
 
@@ -66,9 +66,11 @@
 "+"                   { return(PLUS); }
 "-"                   { return(MINUS); }
 "*"                   { return(MULTIP); }
+"^"                   { return(POWER); }
 "/"                   { return(DIVIDE); }
 "%"                   { return(MOD); }
-\"(\\.|[^"\\])*\"     { return(QUOT); }
+\"(\\.|[^"\\])*\"     { yylval.sValue = strdup(yytext);
+                        return(LIT_STRING); }
 [a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
                        return ID;}
 .                     { yyerror("invalid character"); }
