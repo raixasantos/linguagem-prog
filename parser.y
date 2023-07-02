@@ -51,7 +51,7 @@ subp : decl_funcao
 main : MAIN_BLOCK LBRACE stmts RBRACE
      ;
 
-decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
+decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN LBRACE stmts RBRACE             
        ;
 
 decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE                   
@@ -73,16 +73,16 @@ ids_aux : ID
         | ID COMMA ids_aux                                           
         ;            
 stmts:
-      | stmts_aux SEMICOLON
+      | stmts_aux
       ;
 
 stmts_aux: stmt
-      | stmt SEMICOLON stmts_aux
+      | stmt stmts_aux
       ;
-stmt: decl_var
+stmt: decl_var SEMICOLON
       | condicional
-      | return
-      | saida
+      | return SEMICOLON
+      | saida SEMICOLON
       ;       
 
 condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE 
