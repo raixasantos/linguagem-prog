@@ -62,7 +62,7 @@ args :
      ;
 
 args_aux : TYPE ids                                                  
-         | TYPE ids SEMICOLON args_aux                               
+         | TYPE ids SEMICOLON args_aux // parametros sao separados por ; se tem tipos diferentes? ex.: (int a, b; float c) em que a e b sao int e somente c float
          ;
 
 ids :                                                                
@@ -70,7 +70,7 @@ ids :
     ;
 
 ids_aux : ID                                                         
-        | ID COMMA ids_aux                                           
+        | ID COMMA ids_aux // essa opcao sao para tipos iguais?  ex: (int num1, num2)                                       
         ;            
 stmts:
       | stmts_aux
