@@ -7,7 +7,8 @@
 
 %%
 
-[ \t]                            ;
+"//".*                           ; // comentários
+[ \t]                            ; // quebra de linha
 [ \n]                            { nolineo = nolineo + 1;}
 [0-9]+                           { yylval.iValue = atoi(yytext); 
                                     return NUMBER; }
