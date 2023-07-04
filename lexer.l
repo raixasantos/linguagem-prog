@@ -7,11 +7,13 @@
 
 %%
 
-[ \t]                 ;
-[ \n]                 { nolineo = nolineo + 1;}
-[0-9]+                { yylval.iValue = atoi(yytext); 
-                        return NUMBER; }
-"begin"               { return(BEGIN_BLOCK); }
+[ \t]                            ;
+[ \n]                            { nolineo = nolineo + 1;}
+[0-9]+                           { yylval.iValue = atoi(yytext); 
+                                    return NUMBER; }
+([0-9]+)(\.[0-9]+)?|\.?[0-9]+    { yylval.dValue = atof(yytext); 
+                                    return NUMBER; }
+"begin"                          { return(BEGIN_BLOCK); }
 "end"                 { return(END_BLOCK); }
 "main"                { return(MAIN_BLOCK); }
 "int"                 {yylval.sValue = strdup("int"); 
