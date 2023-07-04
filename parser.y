@@ -56,6 +56,12 @@ decl_vars :                    {$$ = createRecord("","");}
 
 decl_var : TYPE ID ASSIGNMENT expressao SEMICOLON
             {char * s = cat($1, " ", $2, ";", "");
+                  # Symbol symbol;
+                  # if (lookup($2, &symbol)) {
+                  #      printf("Erro: Símbolo '%s' já declarado\n", $2);
+                  # } else {
+                  #      insert($2, $1); // Adiciona o nome e tipo da variável à tabela de símbolos
+                  # }
             free($1);
             free($2);
             $$ = createRecord(s, "");
