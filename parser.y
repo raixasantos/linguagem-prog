@@ -31,8 +31,8 @@ char * cat(char *, char *, char *, char *, char *);
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD QUOT
 
-%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao condicional chamada_funcao
-%type <rec> ids_aux args block termo ops params return
+%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux comando ids expressao condicional chamada_funcao saida
+%type <rec> ids_aux args block termo ops ops_1 params return const
 
 %start programa
 
@@ -72,8 +72,8 @@ subps :            {$$ = createRecord("","");}
                    }                                          
       ;
 
-subp : decl_funcao                                                        
-     | decl_procedimento                                                  
+subp : decl_funcao       {$$ = $1;}                                        
+     | decl_procedimento {$$ = $1;}                                              
      ;
 
 main : MAIN_BLOCK LBRACE block RBRACE
@@ -115,16 +115,38 @@ args :          {$$ = createRecord("","");}
      | args_aux {$$ = $1;}                                                 
      ;
 
-args_aux : TYPE ids                                         
-         | TYPE ids SEMICOLON args_aux                               
+args_aux : TYPE ids 
+            {char * s = cat($1, " ", $2->code, "", "");
+                  free($1);
+                  freeRecord($2);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }                                      
+         | TYPE ids SEMICOLON args_aux     
+            {char * s = cat($1, " ", $2->code, ";", "$4->code");
+                  free($1);
+                  freeRecord($2);
+                  freeRecord($4);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }                            
          ;                  
 
 ids :         {$$ = createRecord("","");}                                                         
     | ids_aux {$$ = $1;}                                                    
     ;
 
-ids_aux : ID                                                         
-        | ID COMMA ids_aux                                           
+ids_aux : ID 
+            {$$ = createRecord($1, "");
+                  free($1);
+            }                                                    
+        | ID COMMA ids_aux
+            {char * s = cat($1, ",", $3->code, "", "");
+                  free($1);
+                  freeRecord($3);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
         ;            
 
 block : 
@@ -132,9 +154,9 @@ block :
       | comando block                                     
       ;
 
-comando : condicional
-        | return
-        | saida
+comando : condicional {$$ = $1;}
+        | return      {$$ = $1;}
+        | saida       {$$ = $1;}
         ;             
 
 condicional : IF LPAREN expressao RPAREN LBRACE block RBRACE 
@@ -174,6 +196,11 @@ return : RETURN SEMICOLON
        ;
 
 saida : PRINT LPAREN expressao RPAREN SEMICOLON
+            {char * s = cat("printf", "(", $3->code, ")", ";");
+                  freeRecord($3);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
 
 params : expressao
        | expressao COMMA params
@@ -189,32 +216,95 @@ expressao : termo
 
 chamada_funcao : ID LPAREN params RPAREN
                   {char * s1 = cat($1, "(", $3->code, ")", ";");
-                  free(s1);
                   free($1);
                   freeRecord($3);
+                  $$ = createRecord(s1, "");
+                  free(s1);
                   }
                ;
 
 ops : ops_1 PLUS ops_1
+      {char * s1 = cat($1->code, "+", $3->code, "", "");
+            freeRecord($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+      }
     | ops_1 PLUS termo
+      {char * s1 = cat($1->code, "+", $3->code, "", "");
+            freeRecord($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+      }
     | termo PLUS termo
+      {char * s1 = cat($1->code, "+", $3->code, "", "");
+            freeRecord($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+      }
     | ops_1 MINUS ops_1
+      {char * s1 = cat($1->code, "-", $3->code, "", "");
+            freeRecord($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+      }
     | ops_1 MINUS termo
+      {char * s1 = cat($1->code, "-", $3->code, "", "");
+            freeRecord($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+      }
     | termo MINUS termo
+      {char * s1 = cat($1->code, "-", $3->code, "", "");
+            freeRecord($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+      }
     ;
 
 ops_1 : termo DIVIDE termo
+            {char * s1 = cat($1->code, "/", $3->code, "", "");
+                  freeRecord($1);
+                  freeRecord($3);
+                  $$ = createRecord(s1, "");
+                  free(s1);
+            }
     | termo MULTIP termo
+      {char * s1 = cat($1->code, "*", $3->code, "", "");
+            freeRecord($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+      }
     ;
 
 termo : ID
+            {$$ = createRecord($1, "");
+                  free($1);
+            }    
       | NUMBER
       | QUOT const QUOT
       | LPAREN expressao RPAREN
+            {char * s1 = cat("(", $2->code, ")", "", "");
+                  freeRecord($2);
+                  $$ = createRecord(s1, "");
+                  free(s1);
+            }
       ;
 
-const : 
+const : {$$ = createRecord("","");}
       | ID const
+            {char * s1 = cat($1, " ", $2->code, "", "");
+                  free($1);
+                  freeRecord($2);
+                  $$ = createRecord(s1, "");
+                  free(s1);
+            }
       ;
 %%
 
