@@ -38,8 +38,11 @@ decl_vars :
           | decl_var decl_vars
           ;
 
-decl_var : TYPE ID ASSIGNMENT expressao
+decl_var : TYPE decl_var_aux
          ;
+decl_var_aux: ID ASSIGNMENT expressao
+      | decl_var_aux COMMA ID ASSIGNMENT expressao
+      
 
 subps :                                                              
       | subp subps                                                    
