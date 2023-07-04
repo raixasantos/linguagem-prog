@@ -13,6 +13,7 @@ extern char * yytext;
 /* */
 %union {
 	int    iValue; 	/* integer value */
+      double dValue;   /* double value */
 	char   cValue; 	/* char value */
 	char * sValue;  /* string value */
 };
@@ -93,7 +94,7 @@ return : RETURN
        | RETURN expressao
        ;
 
-saida : PRINT LPAREN expressao RPAREN
+saida : PRINT LPAREN expressao COMMA ids RPAREN
 
 params : expressao
        | expressao COMMA params
