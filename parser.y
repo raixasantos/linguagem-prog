@@ -82,7 +82,10 @@ stmts_aux: stmt
       ;
 stmt: decl_var SEMICOLON
       | condicional
+      | iteracao
       | return SEMICOLON
+      | atribuicao SEMICOLON
+      | entrada SEMICOLON
       | saida SEMICOLON
       ;       
 
@@ -90,11 +93,22 @@ condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE
             | IF LPAREN expressao RPAREN LBRACE stmts RBRACE ELSE LBRACE stmts RBRACE
             ;
 
+iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
+         ;   
+
+atribuicao : ID ASSIGNMENT expressao
+           ;
+
 return : RETURN
        | RETURN expressao
        ;
 
+entrada : INPUT LPAREN RPAREN 
+        ;
+
 saida : PRINT LPAREN expressao COMMA ids RPAREN
+      | PRINT LPAREN expressao RPAREN
+      ;
 
 params : expressao
        | expressao COMMA params
@@ -142,10 +156,11 @@ sec_ops : DIVIDE
     ;
 
 terc_ops : PLUS
-    | MINUS
-    ;
+         | MINUS
+         ;
+
 chamada_funcao : ID LPAREN params RPAREN
-                  ;
+               ;
 %%
 
 int main (void) {
