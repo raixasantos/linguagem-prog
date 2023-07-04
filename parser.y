@@ -195,12 +195,7 @@ iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
 atribuicao : ID ASSIGNMENT expressao
            ;
 
-return : RETURN
-            {char * s = cat("return", " ", ";", "", "");
-            $$ = createRecord(s, "");
-            free(s);
-            }
-       | RETURN expressao
+return : RETURN expressao
             {char * s = cat("return", " ", $2->code, ";", "");
             freeRecord($2);
             $$ = createRecord(s, "");
