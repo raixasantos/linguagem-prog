@@ -34,7 +34,7 @@ char * cat(char *, char *, char *, char *, char *);
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD LIT_STRING POWER
 
 %type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao condicional chamada_funcao saida
-%type <rec> ids_aux args params return factor
+%type <rec> ids_aux args params return factor stmts
 
 %start programa
 
@@ -254,12 +254,7 @@ factor : ID
                   free(s1);
             }
       | chamada_funcao
-            {char * s1 = cat($1, "(", $3->code, ")", ";");
-            free($1);
-            freeRecord($3);
-            $$ = createRecord(s1, "");
-            free(s1);
-            }
+            {$$ = $1;}
       ;
 
 relacional_ops : ISEQUAL
