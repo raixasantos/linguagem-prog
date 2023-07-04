@@ -149,9 +149,19 @@ ids_aux : ID
             }
         ;            
 
-block : 
-      | decl_var block 
-      | comando block                                     
+block :                 {$$ = createRecord("","");}
+      | decl_var block  {char * s = cat($1->code, " ", $2->code, "", "");
+                              freeRecord($1);
+                              freeRecord($2);
+                              $$ = createRecord(s, "");
+                              free(s);
+                        }
+      | comando block   {char * s = cat($1->code, " ", $2->code, "", "");
+                              freeRecord($1);
+                              freeRecord($2);
+                              $$ = createRecord(s, "");
+                              free(s);
+                        }                                 
       ;
 
 comando : condicional {$$ = $1;}
@@ -202,7 +212,7 @@ saida : PRINT LPAREN expressao RPAREN SEMICOLON
                   free(s);
             }
 
-params : expressao
+params : expressao               {$$ = $1;}
        | expressao COMMA params
        ;
 
