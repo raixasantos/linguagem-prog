@@ -35,11 +35,11 @@ char * cat(char *, char *, char *, char *, char *);
 %token <iValue> NUMBER
 %token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE LPAREN RPAREN COLON
 %token SEMICOLON COMMA
-%token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL  ISNOTEQUAL INCREMENT DECREMENT 
+%token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD LIT_STRING POWER
 
 %type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao condicional chamada_funcao saida stmts_aux
-%type <rec> ids_aux args params return factor stmts
+%type <rec> ids_aux args params return factor stmts stmt
 
 %start programa
 
@@ -325,14 +325,13 @@ terc_ops : PLUS
          ;
 
 chamada_funcao : ID LPAREN params RPAREN
-                  {char * s1 = cat($2, " ", "(", $5->code, ")");
-                  char * s2 = cat(";");
-
-                  free(s1);
-                  free($2);
-                  freeRecord($5);
-                  free(s2);
-                 }
+                  {char * s1 = cat($1, " ", "(", $3->code, ")");
+                        char * s2 = cat(";");
+                        free(s1);
+                        free($1);
+                        freeRecord($3);
+                        free(s2);
+                  }
                ;
 %%
 
