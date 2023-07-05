@@ -380,17 +380,31 @@ prim_ops : POWER
     ;
 
 sec_ops : DIVIDE
+            {char * s = cat("/", "", "", "", "");
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
       | MULTIP
+            {char * s = cat("*", "", "", "", "");
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
       | MOD
-       {char * s1 = cat("/", "*", "%", "", "");
-            free(s1);
-       }
+            {char * s = cat("%", "", "", "", "");
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
     ;
 
 terc_ops : PLUS
+            {char * s = cat("+", "", "", "", "");
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
          | MINUS
-         {char * s1 = cat("+", "-", "", "", "");
-            free(s1);
+            {char * s = cat("-", "", "", "", "");
+                  $$ = createRecord(s, "");
+                  free(s);
             }
          ;
 
