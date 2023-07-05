@@ -165,7 +165,7 @@ stmts_aux: stmt        {$$ = $1;}
       ;
 
 stmt: decl_var SEMICOLON
-            {char * s = cat($1->code, " ", ";", "", "");
+            {char * s = cat($1->code, ";", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
@@ -175,25 +175,25 @@ stmt: decl_var SEMICOLON
       | iteracao              
             {$$ = $1;}
       | return SEMICOLON
-            {char * s = cat($1->code, " ", ";", "", "");
+            {char * s = cat($1->code, ";", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
             }
       | atribuicao SEMICOLON
-            {char * s = cat($1->code, " ", ";", "", "");
+            {char * s = cat($1->code, ";", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
             }
       | entrada SEMICOLON
-            {char * s = cat($1->code, " ", ";", "", "");
+            {char * s = cat($1->code, ";", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
             }
       | saida SEMICOLON
-            {char * s = cat($1->code, " ", ";", "", "");
+            {char * s = cat($1->code, ";", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
