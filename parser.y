@@ -3,17 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./lib/record.h"
-#include <table.h>
-#include <hash.h>
+
 
 int yylex(void); // retorna o numero correspondente ao token lido
 int yyerror(char *s); // chamada quando o parser encontra erro
 extern int nolineo; // trackear o numero da linha
 extern char * yytext;
 extern FILE * yyin, * yyout;
-
-Hashtable* hashtable; 
-hashtable = criarHashtable();
 
 char * cat(char *, char *, char *, char *, char *);
 
@@ -38,8 +34,8 @@ char * cat(char *, char *, char *, char *, char *);
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD LIT_STRING POWER
 
-%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao condicional chamada_funcao saida stmts_aux
-%type <rec> ids_aux args params return factor stmts stmt
+%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional chamada_funcao saida stmts_aux
+%type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada
 
 %start programa
 
@@ -63,13 +59,6 @@ decl_vars :                    {$$ = createRecord("","");}
 
 decl_var : TYPE ID ASSIGNMENT expressao 
             {char * s = cat($1, " ", $2, ";", "");
-
-            if(lookup(hashtable, $2) == 0) {
-                  insert(hashtable, " ", $2);
-            } else {
-                  printf("Este valor ja existe");
-            }
-
             free($1);
             free($2);
             $$ = createRecord(s, "");
@@ -103,13 +92,6 @@ main : MAIN_BLOCK LBRACE stmts RBRACE
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
                  {char * s1 = cat($2, " ", $3, "(", $5->code);
                   char * s2 = cat(s1, ")\n", "{\n", $8->code, "}");
-
-                  if(lookup(hashtable, $3) == 0) {
-                  insert(hashtable, " ", $3);
-                  } else {
-                        printf("Este valor ja existe");
-                  }
-
                   free(s1);
                   free($2);
                   free($3);
@@ -123,13 +105,6 @@ decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE
 decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
                         {char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
                         char * s2 = cat(s1, $7->code, "}", "", "");
-
-                         if(lookup(hashtable, $2) == 0) {
-                              insert(hashtable, " ", $2);
-                        } else {
-                              printf("Este valor ja existe");
-                        }
-
                         free(s1);
                         free($2);
                         freeRecord($4);
@@ -182,42 +157,69 @@ stmts:            {$$ = createRecord("","");}
 
 stmts_aux: stmt {$$ = $1;}
       | stmt stmts_aux {char * s = cat($1->code, "\n", $2->code, "", "");
-                        freeRecord($1);
-                        freeRecord($2);
-                        $$ = createRecord(s, "");
-                        free(s);
+                              freeRecord($1);
+                              freeRecord($2);
+                              $$ = createRecord(s, "");
+                              free(s);
                        }
       ;
 
 stmt: decl_var SEMICOLON
-      | condicional
-      | iteracao
+            {char * s = cat($1->code, " ", ";", "", "");
+                  freeRecord($1);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
+      | condicional           
+            {$$ = $1;}
+      | iteracao              
+            {$$ = $1;}
       | return SEMICOLON
+            {char * s = cat($1->code, " ", ";", "", "");
+                  freeRecord($1);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
       | atribuicao SEMICOLON
+            {char * s = cat($1->code, " ", ";", "", "");
+                  freeRecord($1);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
       | entrada SEMICOLON
+            {char * s = cat($1->code, " ", ";", "", "");
+                  freeRecord($1);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
       | saida SEMICOLON
+            {char * s = cat($1->code, " ", ";", "", "");
+                  freeRecord($1);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
       ;       
 
 condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE 
                   {char * s1 = cat("if", "(", $3->code, ")", "{\n");
-                  char * s2 = cat(s1, $6->code, "}", "", "");
-                  free(s1);
-                  freeRecord($3);
-                  freeRecord($6);
-                  $$ = createRecord(s2, "");
-                  free(s2);
+                        char * s2 = cat(s1, $6->code, "}", "", "");
+                        free(s1);
+                        freeRecord($3);
+                        freeRecord($6);
+                        $$ = createRecord(s2, "");
+                        free(s2);
                   }
             | IF LPAREN expressao RPAREN LBRACE stmts RBRACE ELSE LBRACE stmts RBRACE
                   {char * s1 = cat("if", "(", $3->code, ")", "{\n");
-                  char * s2 = cat(s1, $6->code, "}", "else", "{");
-                  char * s3 = cat(s2, $10->code, "}", "", "");
-                  free(s1);
-                  free(s2);
-                  freeRecord($3);
-                  freeRecord($6);
-                  freeRecord($10);
-                  $$ = createRecord(s3, "");
-                  free(s3);
+                        char * s2 = cat(s1, $6->code, "}", "else", "{");
+                        char * s3 = cat(s2, $10->code, "}", "", "");
+                        free(s1);
+                        free(s2);
+                        freeRecord($3);
+                        freeRecord($6);
+                        freeRecord($10);
+                        $$ = createRecord(s3, "");
+                        free(s3);
                   }
             ;
 
@@ -229,9 +231,9 @@ atribuicao : ID ASSIGNMENT expressao
 
 return : RETURN expressao
             {char * s = cat("return", " ", $2->code, ";", "");
-            freeRecord($2);
-            $$ = createRecord(s, "");
-            free(s);
+                  freeRecord($2);
+                  $$ = createRecord(s, "");
+                  free(s);
             }
        ;
 
@@ -292,17 +294,11 @@ relacional_ops : ISEQUAL
           | MORETHEN
           | MOREISEQUAL
           | LESSISEQUAL
-           {char * s1 = cat("=", "!=," "< ", ">", " >=");
-            char * s2 = cat("<=", "+=", "-=", "", "");   
-
-            free(s1);
-            free(s2);
-            }
+           
           ;
 
 prim_ops : POWER 
        {char * s1 = cat("^", "", "", "", "");
-
             free(s1);
        }
     ;
@@ -311,7 +307,6 @@ sec_ops : DIVIDE
       | MULTIP
       | MOD
        {char * s1 = cat("/", "*", "%", "", "");
-
             free(s1);
        }
     ;
@@ -319,18 +314,16 @@ sec_ops : DIVIDE
 terc_ops : PLUS
          | MINUS
          {char * s1 = cat("+", "-", "", "", "");
-
             free(s1);
             }
          ;
 
 chamada_funcao : ID LPAREN params RPAREN
                   {char * s1 = cat($1, " ", "(", $3->code, ")");
-                        char * s2 = cat(";");
-                        free(s1);
                         free($1);
                         freeRecord($3);
-                        free(s2);
+                        $$ = createRecord(s1, "");
+                        free(s1);
                   }
                ;
 %%
