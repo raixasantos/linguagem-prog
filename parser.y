@@ -330,20 +330,53 @@ factor : ID
       ;
 
 relacional_ops : ISEQUAL
+                  {char * s = cat("==", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
           | ISNOTEQUAL
+                  {char * s = cat("!=", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
           | LESSTHENEQ
+                  {char * s = cat("<=", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
           | MORETHENEQ
+                  {char * s = cat(">=", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
           | LESSTHEN
+                  {char * s = cat("<", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
           | MORETHEN
+                  {char * s = cat(">", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
           | MOREISEQUAL
+                  {char * s = cat("+=", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
           | LESSISEQUAL
+                  {char * s = cat("-=", "", "", "", "");
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
            
           ;
 
 prim_ops : POWER 
-       {char * s1 = cat("^", "", "", "", "");
-            free(s1);
-       }
+            {char * s = cat("^", "", "", "", "");
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
     ;
 
 sec_ops : DIVIDE
