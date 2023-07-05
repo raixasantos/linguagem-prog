@@ -3,9 +3,7 @@
 #include <string.h>
 #include "table.h"
 
-#define MAX_SYMBOLS 100
-
-Symbol symbolTable[MAX_SYMBOLS];
+Symbol* symbolTable;
 int symbolCount = 0;
 int currentScope = 0;
 
@@ -20,10 +18,9 @@ void down() {
     }
 }
 
-int lookup(char* name, Symbol* symb) {
-    for (int i = symbolCount - 1; i >= 0; i--) {
-        if (strcmp(symbolTable[i].name, name) == 0 && symbolTable[i].scope <= currentScope) {
-            *symb = symbolTable[i];
+int lookup(char* name, char* type) {
+    for(int i=0; i<symbolCount; i++){
+        if(strcmp(symbolTable[i].name, name) && symbolTable[i].scope == currentScope){
             return 1;
         }
     }
@@ -31,17 +28,14 @@ int lookup(char* name, Symbol* symb) {
 }
 
 int insert(char* name, char* type) {
-    if (symbolCount >= MAX_SYMBOLS) {
-        printf("Tabela de símbolos está cheia.\n");
-        return 0;
-    }
-
     Symbol symbol;
     symbol.name = strdup(name);
-    symbol.type = strdup(type);
+    symbol.type = type;
     symbol.scope = currentScope;
 
-    symbolTable[symbolCount++] = symbol;
+    symbolCount++;
+    symbolTable = (Symbol*)realloc(symbolTable, sizeof(Symbol) * symbolCount);
+    symbolTable[symbolCount - 1] = symbol;
     return 1;
 }
 

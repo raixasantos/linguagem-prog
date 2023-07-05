@@ -3,14 +3,14 @@
 
 typedef struct symbol{
     char *name;
-    int type;
+    char* type;
     int scope;
 } Symbol;
 
 void up();
 void down();
-int lookup(char *name, Symbol *symb);
-int insert(char *name, char* type);
+int lookup(char* name, char* type);
+int insert(char* name, char* type);
 void print_table();
 void free_table();
 
