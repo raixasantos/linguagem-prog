@@ -35,43 +35,43 @@ char * cat(char *, char *, char *, char *, char *);
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD LIT_STRING POWER
 
 %type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional chamada_funcao saida stmts_aux
-%type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada
+%type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
 %start programa
 
 %%
 programa : BEGIN_BLOCK decl_vars subps main END_BLOCK
             {fprintf(yyout, "%s\n%s\n%s", $2->code, $3->code, $4->code);
-            freeRecord($2);
-            freeRecord($3);
-            freeRecord($4);                        
+                  freeRecord($2);
+                  freeRecord($3);
+                  freeRecord($4);                        
             }                                            
 	    ;
 
 decl_vars :                    {$$ = createRecord("","");}
           | decl_var decl_vars {char * s = cat($1->code, "\n", $2->code, "", "");
-                               freeRecord($1);
-                               freeRecord($2);
-                               $$ = createRecord(s, "");
-                               free(s);
+                                    freeRecord($1);
+                                    freeRecord($2);
+                                    $$ = createRecord(s, "");
+                                    free(s);
                                }
           ;
 
 decl_var : TYPE ID ASSIGNMENT expressao 
             {char * s = cat($1, " ", $2, ";", "");
-            free($1);
-            free($2);
-            $$ = createRecord(s, "");
-            free(s);
+                  free($1);
+                  free($2);
+                  $$ = createRecord(s, "");
+                  free(s);
             }
          ;
 
 subps :            {$$ = createRecord("","");}                                        
       | subp subps {char * s = cat($1->code, "\n", $2->code, "", "");
-                   freeRecord($1);
-                   freeRecord($2);
-                   $$ = createRecord(s, "");
-                   free(s);
+                        freeRecord($1);
+                        freeRecord($2);
+                        $$ = createRecord(s, "");
+                        free(s);
                    }                                          
       ;
 
@@ -81,36 +81,36 @@ subp : decl_funcao       {$$ = $1;}
 
 main : MAIN_BLOCK LBRACE stmts RBRACE
             {char * s1 = cat("main", "(", ")", "{", $3->code);
-            char * s2 = cat(s1, "}", "", "", "");
-            free(s1);
-            freeRecord($3);
-            $$ = createRecord(s2, "");
-            free(s2);
+                  char * s2 = cat(s1, "}", "", "", "");
+                  free(s1);
+                  freeRecord($3);
+                  $$ = createRecord(s2, "");
+                  free(s2);
             }
      ;
 
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
                  {char * s1 = cat($2, " ", $3, "(", $5->code);
-                  char * s2 = cat(s1, ")\n", "{\n", $8->code, "}");
-                  free(s1);
-                  free($2);
-                  free($3);
-                  freeRecord($5);
-                  freeRecord($8);
-                  $$ = createRecord(s2, "");
-                  free(s2);
+                        char * s2 = cat(s1, ")\n", "{\n", $8->code, "}");
+                        free(s1);
+                        free($2);
+                        free($3);
+                        freeRecord($5);
+                        freeRecord($8);
+                        $$ = createRecord(s2, "");
+                        free(s2);
                  }
             ;
 
 decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
                         {char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
-                        char * s2 = cat(s1, $7->code, "}", "", "");
-                        free(s1);
-                        free($2);
-                        freeRecord($4);
-                        freeRecord($7);
-                        $$ = createRecord(s2, "");
-                        free(s2);
+                              char * s2 = cat(s1, $7->code, "}", "", "");
+                              free(s1);
+                              free($2);
+                              freeRecord($4);
+                              freeRecord($7);
+                              $$ = createRecord(s2, "");
+                              free(s2);
                         }                 
              ;
 
@@ -155,7 +155,7 @@ stmts:            {$$ = createRecord("","");}
       | stmts_aux {$$ = $1;}
       ;
 
-stmts_aux: stmt {$$ = $1;}
+stmts_aux: stmt        {$$ = $1;}
       | stmt stmts_aux {char * s = cat($1->code, "\n", $2->code, "", "");
                               freeRecord($1);
                               freeRecord($2);
@@ -224,9 +224,23 @@ condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE
             ;
 
 iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
+            {char * s1 = cat("while", "(", $3->code, ")", "{\n");
+                  char * s2 = cat(s1, $6->code, "}", "", "");
+                  free(s1);
+                  freeRecord($3);
+                  freeRecord($6);
+                  $$ = createRecord(s2, "");
+                  free(s2);
+            }
          ;   
 
 atribuicao : ID ASSIGNMENT expressao
+            {char * s = cat($1, "=", $3->code, ";", "");
+                  free($1);
+                  freeRecord($3);
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
            ;
 
 return : RETURN expressao
@@ -250,24 +264,53 @@ saida : PRINT LPAREN expressao COMMA ids RPAREN
       ;
 
 params : expressao               {$$ = $1;}
-       | expressao COMMA params
+       | expressao COMMA params  {char * s = cat($1->code, ",", $3->code, "", "");
+                                    freeRecord($1);
+                                    freeRecord($3);
+                                    $$ = createRecord(s, "");
+                                    free(s);
+                                 }
        ;
 
-expressao : term_terc
-          | expressao relacional_ops term_terc
-          | 
+expressao : term_terc                           {$$ = $1;}
+          | expressao relacional_ops term_terc  {char * s = cat($1->code, $2->code, $3->code, "", "");
+                                                      freeRecord($1);
+                                                      freeRecord($2);
+                                                      freeRecord($3);
+                                                      $$ = createRecord(s, "");
+                                                      free(s);
+                                                }
+          |                                     
           ;
 
-term_terc : term_sec terc_ops term_terc
-      |term_sec
+term_terc : term_sec terc_ops term_terc {char * s = cat($1->code, $2->code, $3->code, "", "");
+                                                freeRecord($1);
+                                                freeRecord($2);
+                                                freeRecord($3);
+                                                $$ = createRecord(s, "");
+                                                free(s);
+                                        }
+      |term_sec                         {$$ = $1;}
       ; 
 
-term_sec : term_prim sec_ops term_sec
-      |term_prim
+term_sec : term_prim sec_ops term_sec {char * s = cat($1->code, $2->code, $3->code, "", "");
+                                          freeRecord($1);
+                                          freeRecord($2);
+                                          freeRecord($3);
+                                          $$ = createRecord(s, "");
+                                          free(s);
+                                      }
+      |term_prim                      {$$ = $1;}
       ;
       
-term_prim: factor prim_ops term_prim
-      |factor
+term_prim: factor prim_ops term_prim {char * s = cat($1->code, $2->code, $3->code, "", "");
+                                          freeRecord($1);
+                                          freeRecord($2);
+                                          freeRecord($3);
+                                          $$ = createRecord(s, "");
+                                          free(s);
+                                      }
+      |factor                         {$$ = $1;}
       ;    
 
 factor : ID 
