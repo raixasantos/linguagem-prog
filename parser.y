@@ -35,10 +35,10 @@ char * cat(char *, char *, char *, char *, char *);
 %token <iValue> NUMBER
 %token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE LPAREN RPAREN COLON
 %token SEMICOLON COMMA
-%token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISEQUAL INCREMENT DECREMENT 
+%token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL  ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD LIT_STRING POWER
 
-%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao condicional chamada_funcao saida
+%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao condicional chamada_funcao saida stmts_aux
 %type <rec> ids_aux args params return factor stmts
 
 %start programa
@@ -176,13 +176,19 @@ ids_aux : ID
                   free(s);
             }
         ;            
-stmts:
-      | stmts_aux
+stmts:            {$$ = createRecord("","");}
+      | stmts_aux {$$ = $1;}
       ;
 
-stmts_aux: stmt
-      | stmt stmts_aux
+stmts_aux: stmt {$$ = $1;}
+      | stmt stmts_aux {char * s = cat($1->code, "\n", $2->code, "", "");
+                        freeRecord($1);
+                        freeRecord($2);
+                        $$ = createRecord(s, "");
+                        free(s);
+                       }
       ;
+
 stmt: decl_var SEMICOLON
       | condicional
       | iteracao
