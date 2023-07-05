@@ -255,6 +255,14 @@ entrada : INPUT LPAREN RPAREN
         ;
 
 saida : PRINT LPAREN expressao COMMA ids RPAREN
+            {char * s1 = cat("printf", "(", $3->code, ",", $5->code);
+                  char * s2 = cat(s1, ")", ";", "", "");
+                  free(s1);
+                  freeRecord($3);
+                  freeRecord($5);
+                  $$ = createRecord(s2, "");
+                  free(s2);
+            }
       | PRINT LPAREN expressao RPAREN 
             {char * s = cat("printf", "(", $3->code, ")", ";");
                   freeRecord($3);
