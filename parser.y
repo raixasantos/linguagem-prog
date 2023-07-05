@@ -3,12 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./lib/record.h"
+#include <table.h>
+#include <hash.h>
 
 int yylex(void); // retorna o numero correspondente ao token lido
 int yyerror(char *s); // chamada quando o parser encontra erro
 extern int nolineo; // trackear o numero da linha
 extern char * yytext;
 extern FILE * yyin, * yyout;
+
+Hashtable* hashtable; 
+hashtable = criarHashtable();
 
 char * cat(char *, char *, char *, char *, char *);
 
@@ -25,7 +30,7 @@ char * cat(char *, char *, char *, char *, char *);
 
 %token <sValue> ID
 %token <sValue> TYPE
-%token CONCAT LENGHT AND OR NOT 
+%token CONCAT LENGHT AND OR NOT ISEQUAL
 %token WHILE IN DO FOR SWITCH CASE BREAK CONTINUE RETURN PRINT INPUT
 %token <iValue> NUMBER
 %token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE LPAREN RPAREN COLON
@@ -58,6 +63,13 @@ decl_vars :                    {$$ = createRecord("","");}
 
 decl_var : TYPE ID ASSIGNMENT expressao 
             {char * s = cat($1, " ", $2, ";", "");
+
+            if(lookup(hashtable, $2) == 0) {
+                  insert(hashtable, " ", $2);
+            } else {
+                  printf("Este valor ja existe");
+            }
+
             free($1);
             free($2);
             $$ = createRecord(s, "");
@@ -91,6 +103,13 @@ main : MAIN_BLOCK LBRACE stmts RBRACE
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
                  {char * s1 = cat($2, " ", $3, "(", $5->code);
                   char * s2 = cat(s1, ")\n", "{\n", $8->code, "}");
+
+                  if(lookup(hashtable, $3) == 0) {
+                  insert(hashtable, " ", $3);
+                  } else {
+                        printf("Este valor ja existe");
+                  }
+
                   free(s1);
                   free($2);
                   free($3);
@@ -104,6 +123,13 @@ decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE
 decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
                         {char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
                         char * s2 = cat(s1, $7->code, "}", "", "");
+
+                         if(lookup(hashtable, $2) == 0) {
+                              insert(hashtable, " ", $2);
+                        } else {
+                              printf("Este valor ja existe");
+                        }
+
                         free(s1);
                         free($2);
                         freeRecord($4);
@@ -253,27 +279,54 @@ factor : ID
       ;
 
 relacional_ops : ISEQUAL
+          | ISNOTEQUAL
           | LESSTHENEQ
           | MORETHENEQ
           | LESSTHEN
           | MORETHEN
           | MOREISEQUAL
           | LESSISEQUAL
+           {char * s1 = cat("=", "!=," "< ", ">", " >=");
+            char * s2 = cat("<=", "+=", "-=", "", "");   
+
+            free(s1);
+            free(s2);
+            }
           ;
 
 prim_ops : POWER 
+       {char * s1 = cat("^", "", "", "", "");
+
+            free(s1);
+       }
     ;
 
 sec_ops : DIVIDE
       | MULTIP
       | MOD
+       {char * s1 = cat("/", "*", "%", "", "");
+
+            free(s1);
+       }
     ;
 
 terc_ops : PLUS
          | MINUS
+         {char * s1 = cat("+", "-", "", "", "");
+
+            free(s1);
+            }
          ;
 
 chamada_funcao : ID LPAREN params RPAREN
+                  {char * s1 = cat($2, " ", "(", $5->code, ")");
+                  char * s2 = cat(";");
+
+                  free(s1);
+                  free($2);
+                  freeRecord($5);
+                  free(s2);
+                 }
                ;
 %%
 
