@@ -89,13 +89,3 @@ void dump_stack(struct stack *s, char *filename, int line)
     fclose(file);
 }
 
-int main(int argc, char const *argv[]){
-    struct stack* pilha;
-    pilha = allocate();
-    push(pilha, "int");
-    push(pilha, "int");
-    push(pilha, "void");
-    pop(pilha);
-    push(pilha, "void");
-    print_stack(pilha);
-}

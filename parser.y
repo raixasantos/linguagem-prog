@@ -18,9 +18,8 @@ extern FILE * yyin, * yyout;
 extern int yylineno;
 int idScope = 1;
 char auxScope[10];
-char auxType[40];
 char type[40];
-char buffer[20000];
+
 
 char * cat(char *, char *, char *, char *, char *);
 
@@ -106,6 +105,8 @@ main : MAIN_BLOCK LBRACE stmts RBRACE
 decl_funcao : { sprintf(auxScope,"%d",idScope); push(scopes, auxScope); idScope++;} FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
                  {char * s1 = cat($3, " ", $4, "(", $6->code);
                   char * s2 = cat(s1, ")\n", "{\n", $9->code, "}");
+
+                  printf("declaração de funcao");
                   insert_key(ID, TYPE);
 
                   pop(scopes);

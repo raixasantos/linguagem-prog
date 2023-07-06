@@ -142,7 +142,4 @@ void dump_symboltable(char *filename)
     fclose(file);
     printf("Done\n");
 }
-int main(int argc, char const *argv[])
-{
-    
-}
+

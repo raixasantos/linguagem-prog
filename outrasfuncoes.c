@@ -1,7 +1,13 @@
-#include "table.c"
+#include "symboltable.c"
 #include "outrasfuncoes.h"
 
-char *insert_key(int id, int type) {
+extern struct stack *scopes;
+char buffer[20000];
+char auxType[40];
+extern int yylineno;
+
+
+char *insert_key(int id, char *type) {
     sprintf(buffer, "%s@%s", top(scopes), id);
     check_declaration(buffer);
     insert(buffer, auxType, type, yylineno);
@@ -20,3 +26,4 @@ void check_declaration(char *id) {
         exit(0);
     }     
 }
+

@@ -2,7 +2,7 @@
 #define OUTRASFUNCOES_H
 
 
-char *insert_key(int id, int type);
+char *insert_key(int id, char *type);
 void check_declaration(char *id);
 
 #endif
