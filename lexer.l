@@ -2,6 +2,7 @@
   #include <stdio.h>  
   #include "y.tab.h"
   int nolineo = 1;  
+  int nolabels = 1;  
   extern int yyerror (char *msg);  
 %}
 

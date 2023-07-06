@@ -8,6 +8,7 @@
 int yylex(void); // retorna o numero correspondente ao token lido
 int yyerror(char *s); // chamada quando o parser encontra erro
 extern int nolineo; // trackear o numero da linha
+extern int nolabels;
 extern char * yytext;
 extern FILE * yyin, * yyout;
 extern struct stack *scopes;
@@ -219,7 +220,7 @@ char * cat(char *, char *, char *, char *, char *);
                   }
             | atribuicao SEMICOLON
                   {
-                        char * s = cat($1->code, "", "", "", "");
+                        char * s = cat($1->code, ";", "", "", "");
                         freeRecord($1);
                         $$ = createRecord(s, "");
                         free(s);
@@ -271,10 +272,12 @@ char * cat(char *, char *, char *, char *, char *);
 
       iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
                   {
-                        char * s1 = cat("while", "(", $3->code, ")", "{\n");
-                        char * s2 = cat(s1, $6->code, "}", "", "");
+                        char str[10000];
+                        sprintf(str, "%d", nolabels);
+                        char * s1 = cat("label", str, ":\n", $6->code, "\ngoto ");
+                        char * s2 = cat(s1, "label", str, ";", "\nfim:");
+                        nolabels++;
                         free(s1);
-                        freeRecord($3);
                         freeRecord($6);
                         $$ = createRecord(s2, "");
                         free(s2);
