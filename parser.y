@@ -274,10 +274,13 @@ char * cat(char *, char *, char *, char *, char *);
                   {
                         char str[10000];
                         sprintf(str, "%d", nolabels);
-                        char * s1 = cat("label", str, ":\n", $6->code, "\ngoto ");
-                        char * s2 = cat(s1, "label", str, ";", "\nfim:");
+                        char * s11 = cat("if(!", $3->code, "){\n goto fim; \n}\n", "", "");
+                        char * s1 = cat("label", str, ":\n", s11, $6->code);
+                        char * s2 = cat(s1, "\ngoto ", "label", str, ";\nfim:");
                         nolabels++;
                         free(s1);
+                        free(s11);
+                        freeRecord($3);
                         freeRecord($6);
                         $$ = createRecord(s2, "");
                         free(s2);
@@ -313,7 +316,7 @@ char * cat(char *, char *, char *, char *, char *);
                   {     
                         char* s = "";
                         if(!strcmp($3,"int")){
-                        s = cat("scanf(\"%i\", ", $4, ");" , "", "");
+                        s = cat("scanf(\"%d\", ", $4, ");" , "", "");
                         $$ = createRecord(s, "");
                         }else if(!strcmp($3,"float")){
                               s = cat("scanf(\"%lf\", ", $4, ");" , "", "");
@@ -438,13 +441,13 @@ char * cat(char *, char *, char *, char *, char *);
 
       relacional_ops : AND
                         {
-                              char * s = cat(" and ", "", "", "", "");
+                              char * s = cat(" && ", "", "", "", "");
                               $$ = createRecord(s, "");
                               free(s);
                         }
             | OR
                         {
-                              char * s = cat(" or ", "", "", "", "");
+                              char * s = cat(" || ", "", "", "", "");
                               $$ = createRecord(s, "");
                               free(s);
                         }
