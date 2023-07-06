@@ -11,3 +11,13 @@ y.tab.c: parser.y
 
 clean:
 	rm -rf lex.yy.c y.tab.* compiler output.txt y.output
+
+compile:
+	./compiler teste/attrInputTest.txt teste.c
+
+generatec:
+	gcc -o test teste.c
+	./test
+
+recompile: clean all compile
+	

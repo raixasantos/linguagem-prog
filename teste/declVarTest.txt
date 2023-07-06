@@ -1,0 +1,5 @@
+begin
+main{
+    int a = input();
+}
+end

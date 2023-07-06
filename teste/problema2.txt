@@ -1,6 +1,6 @@
 begin
 main{
-    int numero;
+    int numero = 0;
     int intervalo1 = 0, intervalo2 = 0, intervalo3 = 0, intervalo4 = 0;
 
 leitura:

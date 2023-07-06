@@ -35,13 +35,13 @@ char * cat(char *, char *, char *, char *, char *);
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
-%type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional chamada_funcao saida stmts_aux
+%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional chamada_funcao saida stmts_aux
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
 %start programa
 
 %%
-programa : BEGIN_BLOCK decl_vars subps main END_BLOCK
+programa : BEGIN_BLOCK declaracao subps main END_BLOCK
             {fprintf(yyout, "%s%s%s", $2->code, $3->code, $4->code);
                   freeRecord($2);
                   freeRecord($3);
@@ -49,24 +49,45 @@ programa : BEGIN_BLOCK decl_vars subps main END_BLOCK
             }                                            
 	    ;
 
-decl_vars :                    {$$ = createRecord("","");}
-          | decl_var decl_vars {char * s = cat($1->code, "\n", $2->code, "", "");
-                                    freeRecord($1);
-                                    freeRecord($2);
-                                    $$ = createRecord(s, "");
-                                    free(s);
-                               }
+declaracao: {$$ = createRecord("","");}
+          | decl_vars SEMICOLON
+          {
+            char * s = cat($1->code, ";\n", "", "", "");
+            freeRecord($1);
+            $$ = createRecord(s, "");
+            free(s);
+          }
+
+decl_vars : decl_var {$$ = $1;} 
+          | decl_vars_aux {$$ = $1;} 
           ;
 
-decl_var : TYPE ID ASSIGNMENT expressao 
-            {char * s1 = cat($1, " ", $2, " ", "=");
-                  char * s2 = cat(s1, " ", $4->code, ";", "");
+decl_vars_aux : decl_var COMMA decl_var_aux 
+            {
+              char * s = cat($1->code, ", ", $3->code, "", "");
+              freeRecord($1);
+              freeRecord($3);
+              $$ = createRecord(s, "");
+              free(s);
+            };
+
+decl_var_aux : atribuicao {$$ = $1;}  
+      | atribuicao COMMA decl_var_aux 
+       {
+          char * s = cat($1->code, ", ", $3->code, "", "");
+          freeRecord($1);
+          freeRecord($3);
+          $$ = createRecord(s, "");
+          free(s);
+        };
+      ;
+
+           
+decl_var : TYPE atribuicao
+            {char * s1 = cat($1, " ", $2->code, "", "");
+                  freeRecord($2);
+                  $$ = createRecord(s1, "");
                   free(s1);
-                  free($1);
-                  free($2);
-                  freeRecord($4);
-                  $$ = createRecord(s2, "");
-                  free(s2);
             }
          ;
 
@@ -168,8 +189,8 @@ stmts_aux: stmt        {$$ = $1;}
                        }
       ;
 
-stmt: decl_var SEMICOLON
-            {char * s = cat($1->code, "", "", "", "");
+stmt: decl_vars_aux SEMICOLON
+            {char * s = cat($1->code, ";", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
@@ -239,7 +260,7 @@ iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
          ;   
 
 atribuicao : ID ASSIGNMENT expressao
-            {char * s = cat($1, "=", $3->code, "", "");
+            {char * s = cat($1," ", "=", $3->code,"");
                   freeRecord($3);
                   $$ = createRecord(s, "");
                   free(s);
@@ -255,7 +276,7 @@ return : RETURN expressao
        ;
 
 entrada : INPUT LPAREN RPAREN
-            {char * s = cat("scanf", "(", ")", ";", "");
+            {char * s = cat("scanf", "(\"%d\"", ")", ";", "");
                   $$ = createRecord(s, "");
                   free(s);
             }
