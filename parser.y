@@ -84,8 +84,8 @@ subp : decl_funcao       {$$ = $1;}
      ;
 
 main : MAIN_BLOCK LBRACE stmts RBRACE
-            {char * s1 = cat("main", "(", ")", "{\n", $3->code);
-                  char * s2 = cat(s1, "\n}", "", "", "");
+            {char * s1 = cat("#include <stdio.h>\nint main", "(", ")", "{\n", $3->code); //TODO ver uma forma de gerar o #include baseado no conteudo
+                  char * s2 = cat(s1, "\nreturn 0;", "\n}", "", "");//TODO retorno deve depender da existencia de erros
                   free(s1);
                   freeRecord($3);
                   $$ = createRecord(s2, "");
