@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./lib/record.h"
-#include "symboltable.h"
-#include "stack.h"
-#include "outrasfuncoes.h"
+#include "./lib/symboltable.h"
+#include "./lib/stack.h"
+#include "./lib/outrasfuncoes.h"
 
 struct stack* scopes;
 struct bucket* symbolTable;
