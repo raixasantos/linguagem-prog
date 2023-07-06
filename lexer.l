@@ -11,8 +11,8 @@
 [ \t]                            ; // quebra de linha
 [ \n]                            { nolineo = nolineo + 1;}
 [0-9]+                           { yylval.iValue = atoi(yytext); 
-                                    return NUMBER; }
-([0-9]+)(\.[0-9]+)?|\.?[0-9]+    { yylval.dValue = atof(yytext); 
+                                    return NUMBER_INT; }
+([0-9]+)(\.[0-9]+)?|\.?[0-9]+    { yylval.dValue = strtod(yytext, NULL); 
                                     return NUMBER; }
 "begin"                          { return(BEGIN_BLOCK); }
 "end"                 { return(END_BLOCK); }
