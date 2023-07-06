@@ -3,18 +3,21 @@ int main(){
 int numero = 0;
 int intervalo1 = 0, intervalo2 = 0, intervalo3 = 0, intervalo4 = 0;
 label1:
+if(!numero > 0){
+ goto fim; 
+}
 printf("Digite um numero negativo para encerrar: ");
-scanf("%i", numero);
-if(numero >= 0 and numero <= 25){
+scanf("%d", numero);
+if(numero >= 0 && numero <= 25){
 intervalo1 += 1;
 }
-if(numero >= 26 and numero <= 50){
+if(numero >= 26 && numero <= 50){
 intervalo2 += 1;
 }
-if(numero >= 51 and numero <= 75){
+if(numero >= 51 && numero <= 75){
 intervalo3 += 1;
 }
-if(numero >= 76 and numero <= 100){
+if(numero >= 76 && numero <= 100){
 intervalo4 += 1;
 }
 goto label1;
