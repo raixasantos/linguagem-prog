@@ -24,15 +24,16 @@ char * cat(char *, char *, char *, char *, char *);
       struct record * rec;
 };
 
-%token <sValue> ID
+%token <sValue> ID LIT_STRING 
 %token <sValue> TYPE
 %token CONCAT LENGHT AND OR NOT ISEQUAL
 %token WHILE IN DO FOR SWITCH CASE BREAK CONTINUE RETURN PRINT INPUT
-%token <iValue> NUMBER
+%token <iValue> NUMBER_INT
+%token <dValue> NUMBER
 %token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE LPAREN RPAREN COLON
 %token SEMICOLON COMMA
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
-%token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD LIT_STRING POWER
+%token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
 %type <rec> decl_vars decl_var subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional chamada_funcao saida stmts_aux
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
@@ -235,8 +236,7 @@ iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
          ;   
 
 atribuicao : ID ASSIGNMENT expressao
-            {char * s = cat($1, "=", $3->code, ";", "");
-                  free($1);
+            {char * s = cat($1, "=", $3->code, "", "");
                   freeRecord($3);
                   $$ = createRecord(s, "");
                   free(s);
@@ -244,7 +244,7 @@ atribuicao : ID ASSIGNMENT expressao
            ;
 
 return : RETURN expressao
-            {char * s = cat("return", " ", $2->code, ";", "");
+            {char * s = cat("return", " ", $2->code, "", "");
                   freeRecord($2);
                   $$ = createRecord(s, "");
                   free(s);
@@ -321,12 +321,28 @@ term_prim: factor prim_ops term_prim {char * s = cat($1->code, $2->code, $3->cod
       |factor                         {$$ = $1;}
       ;    
 
-factor : ID 
-            {$$ = createRecord($1, "");
-                  free($1);
-            }
-      | NUMBER
-      | LIT_STRING
+factor : ID       {     $$ = createRecord($1, "");
+                        free($1);
+                  }
+      | NUMBER_INT {    
+                        char* str = malloc(sizeof(char) * 1000); 
+                        sprintf(str, "%d", $1);
+                        $$ = createRecord(str, "");
+                        free(str);
+                   }
+      | NUMBER     {    char* str = malloc(sizeof(char) * 1000); 
+                        sprintf(str, "%lf", $1);
+                        $$ = createRecord(str, "");
+                        free(str);
+                   }
+      | LIT_STRING {    char* print = malloc(sizeof(char) *10000);
+                        if($1 != NULL) {
+                              sprintf(print, "%s", $1);
+                        }
+                        $$ = createRecord(print, "");
+                        free($1);
+                        free(print);
+                   }
       | LPAREN expressao RPAREN
             {char * s1 = cat("(", $2->code, ")", "", "");
                   freeRecord($2);
