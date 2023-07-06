@@ -11,10 +11,6 @@ extern int nolineo; // trackear o numero da linha
 extern int nolabels;
 extern char * yytext;
 extern FILE * yyin, * yyout;
-extern struct stack *scopes;
-char buffer[20000];
-char auxType[40];
-char * cat(char *, char *, char *, char *, char *);
 
 %}
 
@@ -46,7 +42,7 @@ char * cat(char *, char *, char *, char *, char *);
 %%
       programa : BEGIN_BLOCK declaracao subps main END_BLOCK
                   {
-                        fprintf(yyout, "%s%s%s%s","#include <stdio.h>\n",$2->code, $3->code, $4->code);
+                        fprintf(yyout, "%s%s%s", $2->code, $3->code, $4->code);
                         freeRecord($2);
                         freeRecord($3);
                         freeRecord($4);                        
@@ -566,6 +562,8 @@ int main (int argc, char ** argv) {
     
     yyin = fopen(argv[1], "r");
     yyout = fopen(argv[2], "w");
+    char *diretives = "#include <stdio.h>\n";
+    fprintf(yyout, "%s", diretives);
     
     codigo = yyparse();
 
