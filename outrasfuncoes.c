@@ -1,4 +1,7 @@
-#include "symboltable.c"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include "symboltable.h"
 #include "outrasfuncoes.h"
 
 extern struct stack *scopes;
