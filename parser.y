@@ -59,11 +59,14 @@ decl_vars :                    {$$ = createRecord("","");}
           ;
 
 decl_var : TYPE ID ASSIGNMENT expressao 
-            {char * s = cat($1, " ", $2, ";", "");
+            {char * s1 = cat($1, " ", $2, " ", "=");
+                  char * s2 = cat(s1, " ", $4->code, ";", "");
+                  free(s1);
                   free($1);
                   free($2);
-                  $$ = createRecord(s, "");
-                  free(s);
+                  freeRecord($4);
+                  $$ = createRecord(s2, "");
+                  free(s2);
             }
          ;
 
@@ -127,7 +130,7 @@ args_aux : TYPE ids
                   free(s);
             }                                      
          | TYPE ids SEMICOLON args_aux     
-            {char * s = cat($1, " ", $2->code, ";", "$4->code");
+            {char * s = cat($1, " ", $2->code, ",", "$4->code");
                   free($1);
                   freeRecord($2);
                   freeRecord($4);
@@ -433,7 +436,7 @@ terc_ops : PLUS
          ;
 
 chamada_funcao : ID LPAREN params RPAREN
-                  {char * s1 = cat($1, " ", "(", $3->code, ")");
+                  {char * s1 = cat($1, "(", $3->code, ")", "");
                         free($1);
                         freeRecord($3);
                         $$ = createRecord(s1, "");
