@@ -130,7 +130,7 @@ args_aux : TYPE ids
                   free(s);
             }                                      
          | TYPE ids SEMICOLON args_aux     
-            {char * s = cat($1, " ", $2->code, ",", "$4->code");
+            {char * s = cat($1, " ", $2->code, ",", $4->code);
                   free($1);
                   freeRecord($2);
                   freeRecord($4);
@@ -254,7 +254,11 @@ return : RETURN expressao
             }
        ;
 
-entrada : INPUT LPAREN RPAREN 
+entrada : INPUT LPAREN RPAREN
+            {char * s = cat("scanf", "(", ")", ";", "");
+                  $$ = createRecord(s, "");
+                  free(s);
+            }
         ;
 
 saida : PRINT LPAREN expressao COMMA ids RPAREN
@@ -290,8 +294,7 @@ expressao : term_terc                           {$$ = $1;}
                                                       freeRecord($3);
                                                       $$ = createRecord(s, "");
                                                       free(s);
-                                                }
-          |                                     
+                                                }                                   
           ;
 
 term_terc : term_sec terc_ops term_terc {char * s = cat($1->code, $2->code, $3->code, "", "");
