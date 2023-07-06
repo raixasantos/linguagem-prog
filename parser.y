@@ -42,7 +42,7 @@ char * cat(char *, char *, char *, char *, char *);
 
 %%
 programa : BEGIN_BLOCK declaracao subps main END_BLOCK
-            {fprintf(yyout, "%s%s%s", $2->code, $3->code, $4->code);
+            {fprintf(yyout, "%s%s%s%s","#include <stdio.h>\n",$2->code, $3->code, $4->code);
                   freeRecord($2);
                   freeRecord($3);
                   freeRecord($4);                        
@@ -57,6 +57,14 @@ declaracao: {$$ = createRecord("","");}
             $$ = createRecord(s, "");
             free(s);
           }
+          /*| declaracao decl_vars SEMICOLON
+          {
+            char * s = cat($1->code, $2->code, ";", "", "");
+            freeRecord($1);
+            freeRecord($2);
+            $$ = createRecord(s, "");
+            free(s);
+          }*/;
 
 decl_vars : decl_var {$$ = $1;} 
           | decl_vars_aux {$$ = $1;} 
@@ -105,7 +113,7 @@ subp : decl_funcao       {$$ = $1;}
      ;
 
 main : MAIN_BLOCK LBRACE stmts RBRACE
-            {char * s1 = cat("#include <stdio.h>\nint main", "(", ")", "{\n", $3->code); //TODO ver uma forma de gerar o #include baseado no conteudo
+            {char * s1 = cat("int main", "(", ")", "{\n", $3->code); //TODO ver uma forma de gerar o #include baseado no conteudo
                   char * s2 = cat(s1, "\nreturn 0;", "\n}", "", "");//TODO retorno deve depender da existencia de erros
                   free(s1);
                   freeRecord($3);
@@ -181,15 +189,16 @@ stmts:            {$$ = createRecord("","");}
       ;
 
 stmts_aux: stmt        {$$ = $1;}
-      | stmt stmts_aux {char * s = cat($1->code, "\n", $2->code, "", "");
-                              freeRecord($1);
-                              freeRecord($2);
-                              $$ = createRecord(s, "");
-                              free(s);
-                       }
+      | stmt stmts_aux 
+      {char * s = cat($1->code, "\n", $2->code, "", "");
+        freeRecord($1);
+        freeRecord($2);
+        $$ = createRecord(s, "");
+        free(s);
+      }
       ;
 
-stmt: decl_vars_aux SEMICOLON
+stmt: decl_vars SEMICOLON
             {char * s = cat($1->code, ";", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
@@ -257,7 +266,13 @@ iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
                   $$ = createRecord(s2, "");
                   free(s2);
             }
-         ;   
+         ;  
+
+/*atribuicoes: assign entrada
+            | assign expressao
+            ;
+
+assign: ID ASSIGNMENT;*/
 
 atribuicao : ID ASSIGNMENT expressao
             {char * s = cat($1," ", "=", $3->code,"");

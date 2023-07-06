@@ -3,9 +3,9 @@ main{
     int numero = 0;
     int intervalo1 = 0, intervalo2 = 0, intervalo3 = 0, intervalo4 = 0;
 
-leitura:
-    print("Digite um numero (negativo para encerrar): ");
-    input(numero);
+//leitura:
+    print("Digite um numero negativo para encerrar: ");
+    numero = input();
 
     if (numero < 0){
       //  goto fim;
@@ -26,7 +26,7 @@ leitura:
 
     //goto leitura;
 
-fim:
+//fim:
     print("Numeros no intervalo [0, 25]: \n", intervalo1);
     print("Numeros no intervalo [26, 50]: \n", intervalo2);
     print("Numeros no intervalo [51, 75]: \n", intervalo3);
