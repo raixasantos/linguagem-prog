@@ -3,12 +3,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./lib/record.h"
+#include "symboltable.h"
+#include "stack.h"
+#include "outrasfuncoes.h"
 
+struct stack* scopes;
+struct bucket* symbolTable;
 int yylex(void); // retorna o numero correspondente ao token lido
 int yyerror(char *s); // chamada quando o parser encontra erro
 extern int nolineo; // trackear o numero da linha
 extern char * yytext;
 extern FILE * yyin, * yyout;
+
+extern int yylineno;
+int idScope = 1;
+char auxScope[10];
+char auxType[40];
+char type[40];
+char buffer[20000];
 
 char * cat(char *, char *, char *, char *, char *);
 
@@ -39,11 +51,13 @@ char * cat(char *, char *, char *, char *, char *);
 %start programa
 
 %%
-programa : BEGIN_BLOCK decl_vars subps main END_BLOCK
-            {fprintf(yyout, "%s\n%s\n%s", $2->code, $3->code, $4->code);
-            freeRecord($2);
+programa : { push(scopes, "0");} BEGIN_BLOCK decl_vars subps main END_BLOCK
+            {fprintf(yyout, "%s\n%s\n%s", $3->code, $4->code, $5->code);
             freeRecord($3);
-            freeRecord($4);                        
+            freeRecord($4);
+            freeRecord($5); 
+            
+            pop(scopes);                        
             }                                            
 	    ;
 
@@ -58,6 +72,7 @@ decl_vars :                    {$$ = createRecord("","");}
 
 decl_var : TYPE ID ASSIGNMENT expressao 
             {char * s = cat($1, " ", $2, ";", "");
+            
             free($1);
             free($2);
             $$ = createRecord(s, "");
@@ -88,14 +103,18 @@ main : MAIN_BLOCK LBRACE stmts RBRACE
             }
      ;
 
-decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
-                 {char * s1 = cat($2, " ", $3, "(", $5->code);
-                  char * s2 = cat(s1, ")\n", "{\n", $8->code, "}");
+decl_funcao : { sprintf(auxScope,"%d",idScope); push(scopes, auxScope); idScope++;} FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
+                 {char * s1 = cat($3, " ", $4, "(", $6->code);
+                  char * s2 = cat(s1, ")\n", "{\n", $9->code, "}");
+                  insert_key(ID, TYPE);
+
+                  pop(scopes);
+
                   free(s1);
-                  free($2);
                   free($3);
-                  freeRecord($5);
-                  freeRecord($8);
+                  free($4);
+                  freeRecord($6);
+                  freeRecord($9);
                   $$ = createRecord(s2, "");
                   free(s2);
                  }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "table.h"
+#include "outrasfuncoes.h"
 
 #define MAX_SYMBOLS 100
 
