@@ -42,7 +42,7 @@ char * cat(char *, char *, char *, char *, char *);
 
 %%
 programa : BEGIN_BLOCK decl_vars subps main END_BLOCK
-            {fprintf(yyout, "%s\n%s\n%s", $2->code, $3->code, $4->code);
+            {fprintf(yyout, "%s%s%s", $2->code, $3->code, $4->code);
                   freeRecord($2);
                   freeRecord($3);
                   freeRecord($4);                        
