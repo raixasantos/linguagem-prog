@@ -71,6 +71,16 @@ decl_vars :                    {$$ = createRecord("","");}
 
 decl_var : TYPE ID ASSIGNMENT expressao 
             {char * s = cat($1, " ", $2, ";", "");
+
+            char tipo[20];
+            sprintf(tipo, "%d", TYPE);
+            char* ponteiroTipo = tipo;
+            insert_key(ID, ponteiroTipo);
+
+            char identificador[20];
+            sprintf(identificador, "%d", ID);
+            char* ponteiroIdentificador = identificador;
+            set_symbol_datatype(ponteiroIdentificador, ponteiroTipo);
             
             free($1);
             free($2);
@@ -92,9 +102,12 @@ subp : decl_funcao       {$$ = $1;}
      | decl_procedimento {$$ = $1;}                                              
      ;
 
-main : MAIN_BLOCK LBRACE stmts RBRACE
+main :  MAIN_BLOCK LBRACE stmts RBRACE
             {char * s1 = cat("main", "(", ")", "{", $3->code);
             char * s2 = cat(s1, "}", "", "", "");
+
+           /*não entendi com pegar ID e TYPE da main*/
+
             free(s1);
             freeRecord($3);
             $$ = createRecord(s2, "");
@@ -106,10 +119,17 @@ decl_funcao : { sprintf(auxScope,"%d",idScope); push(scopes, auxScope); idScope+
                  {char * s1 = cat($3, " ", $4, "(", $6->code);
                   char * s2 = cat(s1, ")\n", "{\n", $9->code, "}");
 
-                  printf("declaração de funcao");
-                  insert_key(ID, TYPE);
+                  char tipo[20];
+                  sprintf(tipo, "%d", TYPE);
+                  char* ponteiroTipo = tipo;
+                  insert_key(ID, ponteiroTipo);
 
                   pop(scopes);
+
+                  char identificador[20];
+                  sprintf(identificador, "%d", ID);
+                  char* ponteiroIdentificador = identificador;
+                  set_symbol_datatype(ponteiroIdentificador, ponteiroTipo);
 
                   free(s1);
                   free($3);
@@ -121,9 +141,20 @@ decl_funcao : { sprintf(auxScope,"%d",idScope); push(scopes, auxScope); idScope+
                  }
             ;
 
-decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
+decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE {sprintf(auxScope,"%d",idScope); push(scopes, auxScope); idScope++;}
                         {char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
                         char * s2 = cat(s1, $7->code, "}", "", "");
+                         
+                        char* ponteiroTipo = "void";
+                        insert_key(ID, ponteiroTipo);
+
+                        pop(scopes);
+
+                        char identificador[20];
+                        sprintf(identificador, "%d", ID);
+                        char* ponteiroIdentificador = identificador;
+                        set_symbol_datatype(ponteiroIdentificador, ponteiroTipo);
+                       
                         free(s1);
                         free($2);
                         freeRecord($4);
@@ -186,7 +217,7 @@ stmt: decl_var SEMICOLON
       | saida SEMICOLON
       ;       
 
-condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE 
+condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE {sprintf(auxScope,"%d",idScope); push(scopes, auxScope); idScope++;}
                   {char * s1 = cat("if", "(", $3->code, ")", "{\n");
                   char * s2 = cat(s1, $6->code, "}", "", "");
                   free(s1);
@@ -195,7 +226,7 @@ condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE
                   $$ = createRecord(s2, "");
                   free(s2);
                   }
-            | IF LPAREN expressao RPAREN LBRACE stmts RBRACE ELSE LBRACE stmts RBRACE
+            | IF LPAREN expressao RPAREN LBRACE stmts RBRACE ELSE LBRACE stmts RBRACE {sprintf(auxScope,"%d",idScope); push(scopes, auxScope); idScope++;}
                   {char * s1 = cat("if", "(", $3->code, ")", "{\n");
                   char * s2 = cat(s1, $6->code, "}", "else", "{");
                   char * s3 = cat(s2, $10->code, "}", "", "");
