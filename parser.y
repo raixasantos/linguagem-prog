@@ -81,8 +81,8 @@ subp : decl_funcao       {$$ = $1;}
      ;
 
 main : MAIN_BLOCK LBRACE stmts RBRACE
-            {char * s1 = cat("main", "(", ")", "{", $3->code);
-                  char * s2 = cat(s1, "}", "", "", "");
+            {char * s1 = cat("main", "(", ")", "{\n", $3->code);
+                  char * s2 = cat(s1, "\n}", "", "", "");
                   free(s1);
                   freeRecord($3);
                   $$ = createRecord(s2, "");
@@ -92,7 +92,7 @@ main : MAIN_BLOCK LBRACE stmts RBRACE
 
 decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
                  {char * s1 = cat($2, " ", $3, "(", $5->code);
-                        char * s2 = cat(s1, ")\n", "{\n", $8->code, "}");
+                        char * s2 = cat(s1, ")", "{\n", $8->code, "\n}");
                         free(s1);
                         free($2);
                         free($3);
@@ -166,7 +166,7 @@ stmts_aux: stmt        {$$ = $1;}
       ;
 
 stmt: decl_var SEMICOLON
-            {char * s = cat($1->code, ";", "", "", "");
+            {char * s = cat($1->code, "", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
@@ -176,25 +176,25 @@ stmt: decl_var SEMICOLON
       | iteracao              
             {$$ = $1;}
       | return SEMICOLON
-            {char * s = cat($1->code, ";", "", "", "");
+            {char * s = cat($1->code, "", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
             }
       | atribuicao SEMICOLON
-            {char * s = cat($1->code, ";", "", "", "");
+            {char * s = cat($1->code, "", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
             }
       | entrada SEMICOLON
-            {char * s = cat($1->code, ";", "", "", "");
+            {char * s = cat($1->code, "", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
             }
       | saida SEMICOLON
-            {char * s = cat($1->code, ";", "", "", "");
+            {char * s = cat($1->code, "", "", "", "");
                   freeRecord($1);
                   $$ = createRecord(s, "");
                   free(s);
@@ -203,7 +203,7 @@ stmt: decl_var SEMICOLON
 
 condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE 
                   {char * s1 = cat("if", "(", $3->code, ")", "{\n");
-                        char * s2 = cat(s1, $6->code, "}", "", "");
+                        char * s2 = cat(s1, $6->code, "\n}", "", "");
                         free(s1);
                         freeRecord($3);
                         freeRecord($6);
@@ -212,8 +212,8 @@ condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE
                   }
             | IF LPAREN expressao RPAREN LBRACE stmts RBRACE ELSE LBRACE stmts RBRACE
                   {char * s1 = cat("if", "(", $3->code, ")", "{\n");
-                        char * s2 = cat(s1, $6->code, "}", "else", "{");
-                        char * s3 = cat(s2, $10->code, "}", "", "");
+                        char * s2 = cat(s1, $6->code, "\n}", "else", "{\n");
+                        char * s3 = cat(s2, $10->code, "\n}", "", "");
                         free(s1);
                         free(s2);
                         freeRecord($3);
@@ -244,7 +244,7 @@ atribuicao : ID ASSIGNMENT expressao
            ;
 
 return : RETURN expressao
-            {char * s = cat("return", " ", $2->code, "", "");
+            {char * s = cat("return", " ", $2->code, ";", "");
                   freeRecord($2);
                   $$ = createRecord(s, "");
                   free(s);
@@ -281,7 +281,7 @@ params : expressao               {$$ = $1;}
        ;
 
 expressao : term_terc                           {$$ = $1;}
-          | expressao relacional_ops term_terc  {char * s = cat($1->code, $2->code, $3->code, "", "");
+          | expressao relacional_ops term_terc  {char * s = cat($1->code, $2->code, $3->code, ";", "");
                                                       freeRecord($1);
                                                       freeRecord($2);
                                                       freeRecord($3);
