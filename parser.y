@@ -34,7 +34,8 @@ extern FILE * yyin, * yyout;
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
-%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional if_single elseif else condicional_aux chamada_funcao saida stmts_aux
+%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
+%type <rec> decl_funcao decl_procedimento chamada_funcao chamada_procedure
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
 %start programa
@@ -134,8 +135,8 @@ extern FILE * yyin, * yyout;
 
       decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
                               {
-                                    char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
-                                    char * s2 = cat(s1,$7->code, "\n}", "", "");
+                                    char * s1 = cat("void ",$2, "(", $4->code, ")\n");
+                                    char * s2 = cat(s1,"{\n", $7->code, "\n}", "");
                                     free(s1);
                                     free($2);
                                     freeRecord($4);
@@ -233,6 +234,13 @@ extern FILE * yyin, * yyout;
             | saida SEMICOLON
                   {
                         char * s = cat($1->code, "", "", "", "");
+                        freeRecord($1);
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
+            | chamada_procedure SEMICOLON
+                  {
+                        char * s = cat($1->code, ";", "", "", "");
                         freeRecord($1);
                         $$ = createRecord(s, "");
                         free(s);
@@ -338,7 +346,7 @@ extern FILE * yyin, * yyout;
                   }
             ;
 
-      entrada : INPUT LPAREN TYPE ID RPAREN
+      entrada : INPUT LPAREN TYPE ID RPAREN //essse type é realmente preciso?
                   {     
                         char* s = "";
                         if(!strcmp($3,"int")){
@@ -352,6 +360,25 @@ extern FILE * yyin, * yyout;
                               $$ = createRecord(s, "");
                         }else if(!strcmp($3,"bool")){
                               s = cat("scanf(\"%i\", ", $4, ");" , "", "");
+                              $$ = createRecord(s, "");
+                        }
+                        free(s);
+                  }
+                | ID ASSIGNMENT INPUT LPAREN RPAREN
+                  {     
+                        char* s = "";
+                         char* type_temp = "int";//Mudar isso
+                        if(!strcmp(type_temp,"int")){
+                        s = cat("scanf(\"%d\", ", $1, ");" , "", "");
+                        $$ = createRecord(s, "");
+                        }else if(!strcmp(type_temp,"float")){
+                              s = cat("scanf(\"%lf\", ", $1, ");" , "", "");
+                              $$ = createRecord(s, "");
+                        }else if(!strcmp(type_temp,"string")){
+                              s = cat("scanf(\"%s\", ", $1, ");" , "", "");
+                              $$ = createRecord(s, "");
+                        }else if(!strcmp(type_temp,"bool")){
+                              s = cat("scanf(\"%i\", ", $1, ");" , "", "");
                               $$ = createRecord(s, "");
                         }
                         free(s);
@@ -579,6 +606,15 @@ extern FILE * yyin, * yyout;
                         free(s1);
                   }
                ;
+    chamada_procedure : ID LPAREN params RPAREN
+        {
+            char * s1 = cat($1, "(", $3->code, ")", "");
+            free($1);
+            freeRecord($3);
+            $$ = createRecord(s1, "");
+            free(s1);
+        }
+    ;
 %%
 
 

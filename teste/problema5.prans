@@ -22,14 +22,14 @@ procedure mdc(int n, m, r) {
 }
 
 main{
-    int n, m;
+    int n = 0, m = 0;
     print("Digite o valor de n: ");
-    scanf("%d", &n);
+    n = input();
     print("Digite o valor de m: ");
-    scanf("%d", &m);
+    m = input();
 
-    int resultado;
-    mdc(n, m, &resultado);
+    int resultado =0;
+    mdc(n, m, resultado);
 
     print("O maior divisor comum entre %d e %d é: %d\n", n, m, resultado);
 }
