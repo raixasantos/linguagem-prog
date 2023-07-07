@@ -33,12 +33,12 @@ char * cat(char *, char *, char *, char *, char *);
 %token WHILE IN DO FOR SWITCH CASE BREAK CONTINUE RETURN PRINT INPUT
 %token <iValue> NUMBER_INT
 %token <dValue> NUMBER
-%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE LPAREN RPAREN COLON
+%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE ELSEIF LPAREN RPAREN COLON
 %token SEMICOLON COMMA
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
-%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional chamada_funcao saida stmts_aux
+%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional if_single else_if cond_else condicional_aux chamada_funcao saida stmts_aux
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
 %start programa
@@ -139,7 +139,7 @@ char * cat(char *, char *, char *, char *, char *);
       decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
                               {
                                     char * s1 = cat($2, "(", $4->code, ")\n", "{\n");
-                                    char * s2 = cat(s1, $7->code, "}", "", "");
+                                    char * s2 = cat(s1,$7->code, "\n}", "", "");
                                     free(s1);
                                     free($2);
                                     freeRecord($4);
@@ -245,30 +245,29 @@ char * cat(char *, char *, char *, char *, char *);
                   {$$ = $1;}
             ;       
 
-      condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE 
-                        {
-                              char * s1 = cat("if", "(", $3->code, ")", "{\n");
-                              char * s2 = cat(s1, $6->code, "\n}", "", "");
-                              free(s1);
-                              freeRecord($3);
-                              freeRecord($6);
-                              $$ = createRecord(s2, "");
-                              free(s2);
-                        }
-                  | IF LPAREN expressao RPAREN LBRACE stmts RBRACE ELSE LBRACE stmts RBRACE
-                        {
-                              char * s1 = cat("if", "(", $3->code, ")", "{\n");
-                              char * s2 = cat(s1, $6->code, "\n}", "else", "{\n");
-                              char * s3 = cat(s2, $10->code, "\n}", "", "");
-                              free(s1);
-                              free(s2);
-                              freeRecord($3);
-                              freeRecord($6);
-                              freeRecord($10);
-                              $$ = createRecord(s3, "");
-                              free(s3);
-                        }
+      condicional : if_single
+                  | if_single cond_else
+                  | if_single condicional_aux                   
                   ;
+      condicional_aux: else_if
+                  | else_if condicional_aux
+                  | else_if condicional_aux cond_else
+                  ;
+      cond_else: ELSE LBRACE stmts RBRACE
+
+      else_if: ELSEIF LPAREN expressao RPAREN LBRACE stmts RBRACE
+            ;
+
+      if_single : IF LPAREN expressao RPAREN LBRACE stmts RBRACE
+      {
+            char * s1 = cat("if", "(", $3->code, ")", "{\n");
+            char * s2 = cat(s1, $6->code, "\n}", "", "");
+            free(s1);
+            freeRecord($3);
+            freeRecord($6);
+            $$ = createRecord(s2, "");
+            free(s2);
+      }
 
       iteracao : WHILE LPAREN expressao RPAREN LBRACE stmts RBRACE
                   {
@@ -560,13 +559,13 @@ int main (int argc, char ** argv) {
     int codigo;
 
     if (argc != 3) {
-       printf("Usage: $./compiler input.txt output.txt\nClosing application...\n");
-       exit(0);
+      printf("Usage: $./compiler input.txt output.txt\nClosing application...\n");
+      exit(0);
     }
     
     yyin = fopen(argv[1], "r");
     yyout = fopen(argv[2], "w");
-    
+   
     codigo = yyparse();
 
     fclose(yyin);
