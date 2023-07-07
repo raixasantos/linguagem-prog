@@ -1,4 +1,4 @@
-#include "outrasfuncoes.h"
+#include "utils.h"
 
 char *insert_key(int id, char *type, char *auxType, struct stack *scopes, char *buffer, int lineno) {
     printf("ID: %d\n", id);

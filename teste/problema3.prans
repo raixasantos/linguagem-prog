@@ -6,32 +6,31 @@ main{
     int linhas, colunas;
     int i = 0, j = 0;
 
-leitura:
-    printf("Digite o numero de linhas das matrizes (maximo %d): ", MAX);
-    scanf("%d", &linhas);
+while(linhas <= 0 or colunas <= 0 or linhas > MAX or colunas > MAX){//while ou dowhile
 
-    printf("Digite o numero de colunas das matrizes (maximo %d): ", MAX);
-    scanf("%d", &colunas);
+    print("Digite o numero de linhas das matrizes (maximo ): ", MAX);
+    input(linhas);
 
-    if (linhas <= 0 || colunas <= 0 || linhas > MAX || colunas > MAX)
-        goto leitura;
+    print("Digite o numero de colunas das matrizes (maximo ): ", MAX);
+    input(colunas);
 
-    printf("Digite os elementos da matriz 1:\n");
+    print("Digite os elementos da matriz 1:\n");
     i = 0;
-leitura_matriz1:
+}
+
+while(j < colunas)
     j = 0;
-    printf("Elemento [%d][%d]: ", i, j);
-    scanf("%d", &matriz1[i][j]);
+    print("Elemento [][]: ", i, j); //como funciona a concatenacao
+    input(matriz1[i][j]);
     j++;
-    if (j < colunas)
-        goto leitura_matriz1;
 
-    printf("Digite os elementos da matriz 2:\n");
+    print("Digite os elementos da matriz 2:\n");
     i = 0;
+while(j < colunas)
 leitura_matriz2:
     j = 0;
-    printf("Elemento [%d][%d]: ", i, j);
-    scanf("%d", &matriz2[i][j]);
+    print("Elemento [][]: ", i, j);
+    input(matriz2[i][j]);
     j++;
     if (j < colunas)
         goto leitura_matriz2;
@@ -61,28 +60,28 @@ produto_matrizes:
         goto produto_matrizes;
 
     // Impressão das matrizes
-    printf("\nSoma das matrizes:\n");
+    print("\nSoma das matrizes:\n");
     i = 0;
 impressao_soma:
     j = 0;
-    printf("%d ", soma[i][j]);
+    print(" ", soma[i][j]);
     j++;
     if (j < colunas)
         goto impressao_soma;
-    printf("\n");
+    print("\n");
     i++;
     if (i < linhas)
         goto impressao_soma;
 
-    printf("\nProduto das matrizes:\n");
+    print("\nProduto das matrizes:\n");
     i = 0;
 impressao_produto:
     j = 0;
-    printf("%d ", produto[i][j]);
+    print(" ", produto[i][j]);
     j++;
     if (j < colunas)
         goto impressao_produto;
-    printf("\n");
+    print("\n");
     i++;
     if (i < linhas)
         goto impressao_produto;
