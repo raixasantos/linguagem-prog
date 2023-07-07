@@ -42,6 +42,7 @@
 "function"            { return(FUNCTION); }
 "procedure"           { return(PROCEDURE); }
 "if"                  { return(IF); }
+"elseif"              { return(ELSEIF); }
 "then"                { return(THEN); }
 "else"                { return(ELSE); }
 "return"              { return(RETURN); }

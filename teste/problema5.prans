@@ -1,25 +1,24 @@
 begin
-void mdc(int n, int m, int *r) {
-    inicio:
-    if (n == 0) {
-        *r = m;
-        goto fim;
-    } else if (m == 0) {
-        *r = n;
-        goto fim;
-    } else if (n == 1 || m == 1) {
-        *r = 1;
-        goto fim;
-    } else if (n > m) {
-        n = n % m;
-        goto inicio;
-    } else {
-        m = m % n;
-        goto inicio;
-    }
+procedure mdc(int n, m, r) {
+    //inicio:
+        if (n == 0) {
+            r = m;
+            // goto fim;
+        } elseif (m == 0) {
+            r = n;
+            // goto fim;
+        } elseif (n == 1 or m == 1) {
+            r = 1;
+            // goto fim;
+        } elseif (n > m) {
+            n = n % m;
+            //goto inicio;
+        } else {
+            m = m % n;
+            //goto inicio;
+        }
 
-    fim:
-    return;
+    //fim:
 }
 
 main{
