@@ -3,7 +3,6 @@ int main()
 {
     int numero = 0;
     int intervalo1 = 0, intervalo2 = 0, intervalo3 = 0, intervalo4 = 0;
-
 label1:
     if (!numero > 0)
     {
@@ -15,18 +14,22 @@ label1:
     {
         intervalo1 += 1;
     }
+
     if (numero >= 26 && numero <= 50)
     {
         intervalo2 += 1;
     }
+
     if (numero >= 51 && numero <= 75)
     {
         intervalo3 += 1;
     }
+
     if (numero >= 76 && numero <= 100)
     {
         intervalo4 += 1;
     }
+
     goto label1;
 fim:
     printf("Numeros no intervalo [0, 25]: \n", intervalo1);

@@ -29,12 +29,12 @@ extern FILE * yyin, * yyout;
 %token WHILE IN DO FOR SWITCH CASE BREAK CONTINUE RETURN PRINT INPUT
 %token <iValue> NUMBER_INT
 %token <dValue> NUMBER
-%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF  THEN ELSE ELSEIF LPAREN RPAREN COLON
+%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF THEN ELSE ELSEIF LPAREN RPAREN COLON
 %token SEMICOLON COMMA
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
-%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional if_single else_if cond_else condicional_aux chamada_funcao saida stmts_aux
+%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main decl_funcao decl_procedimento args_aux ids expressao stmt condicional if_single elseif else condicional_aux chamada_funcao saida stmts_aux
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
 %start programa
@@ -243,19 +243,48 @@ extern FILE * yyin, * yyout;
                   {$$ = $1;}
             ;       
 
-      condicional : if_single
-                  | if_single cond_else
-                  | if_single condicional_aux                   
-                  ;
-      condicional_aux: else_if
-                  | else_if condicional_aux
-                  | else_if condicional_aux cond_else
-                  ;
-      cond_else: ELSE LBRACE stmts RBRACE
-
-      else_if: ELSEIF LPAREN expressao RPAREN LBRACE stmts RBRACE
+      condicional : 
+              if_single condicional_aux
+              {
+                char * s = cat($1->code, "\n", $2->code, "", "");
+                freeRecord($1);
+                freeRecord($2);
+                $$ = createRecord(s, "");
+                free(s);
+               }  
+     ; 
             ;
+      condicional_aux :        {$$ = createRecord("","");}
+                  | elseif condicional_aux
+                  {
+                    char * s = cat($1->code, "\n", $2->code, "", "");
+                    freeRecord($1);
+                    freeRecord($2);
+                    $$ = createRecord(s, "");
+                    free(s);
+                    } 
+                  | else  {$$ = $1;}
+                ;
+      else: ELSE LBRACE stmts RBRACE
+            {
+                char * s = cat("else", "{", $3->code, "}", "\n");
+                freeRecord($3);
+                $$ = createRecord(s, "");
+                free(s);
+            };
 
+      elseif: ELSEIF LPAREN expressao RPAREN LBRACE stmts RBRACE
+           {
+            char * s1 = cat("else if", "(", $3->code, ")", "{\n");
+            char * s2 = cat(s1, $6->code, "\n}", "", "");
+            free(s1);
+            freeRecord($3);
+            freeRecord($6);
+            $$ = createRecord(s2, "");
+            free(s2);
+      }
+            ;
+                  //if(a<0){...}
       if_single : IF LPAREN expressao RPAREN LBRACE stmts RBRACE
       {
             char * s1 = cat("if", "(", $3->code, ")", "{\n");
