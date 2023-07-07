@@ -163,12 +163,14 @@ char * cat(char *, char *, char *, char *, char *);
                   }                                      
             | TYPE ids SEMICOLON args_aux     
                   {
-                        char * s = cat($1, " ", $2->code, ",", $4->code);
+                        char * s = cat($1, " ", $2->code, ",", $1);
+                        char * s1 = cat(s, $4->code,"","","");
+                        free(s);
                         free($1);
                         freeRecord($2);
                         freeRecord($4);
-                        $$ = createRecord(s, "");
-                        free(s);
+                        $$ = createRecord(s1, "");
+                        free(s1);
                   }                            
             ;                  
 
@@ -244,7 +246,6 @@ char * cat(char *, char *, char *, char *, char *);
             | iteracao              
                   {$$ = $1;}
             ;       
-
       condicional : IF LPAREN expressao RPAREN LBRACE stmts RBRACE 
                         {
                               char * s1 = cat("if", "(", $3->code, ")", "{\n");
