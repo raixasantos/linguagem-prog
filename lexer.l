@@ -76,7 +76,7 @@
 "%"                   { return(MOD); }
 \"(\\.|[^"\\])*\"     { yylval.sValue = strdup(yytext);
                         return(LIT_STRING); }
-[a-zA-Z][a-zA-Z0-9]*	{yylval.sValue = strdup(yytext); 
+[a-zA-Z_][a-zA-Z0-9_]* {yylval.sValue = strdup(yytext); 
                        return ID;}
 .                     { yyerror("invalid character"); }
 
