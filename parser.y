@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./lib/record.h"
+#include "./lib/scopestack.h"
 
 
 int yylex(void); // retorna o numero correspondente ao token lido
@@ -43,6 +44,7 @@ extern FILE * yyin, * yyout;
 %%
       programa : BEGIN_BLOCK declaracao subps main END_BLOCK
                   {
+                        push("global"); print_scopes(); 
                         fprintf(yyout, "%s%s%s", $2->code, $3->code, $4->code);
                         freeRecord($2);
                         freeRecord($3);
@@ -51,7 +53,7 @@ extern FILE * yyin, * yyout;
             ;
 
       declaracao:       {$$ = createRecord("","");}
-            | decl_vars SEMICOLON
+            | decl_vars SEMICOLON 
                         {
                               char * s = cat($1->code, ";\n", "", "", "");
                               freeRecord($1);
@@ -110,6 +112,8 @@ extern FILE * yyin, * yyout;
 
       main : MAIN_BLOCK LBRACE stmts RBRACE
                   {
+                        char* scope = "main";
+                        push(scope); print_scopes();
                         char * s1 = cat("int main", "(", ")", "{\n", $3->code);
                         char * s2 = cat(s1, "\nreturn 0;", "\n}", "", "");
                         free(s1);
@@ -121,29 +125,35 @@ extern FILE * yyin, * yyout;
 
       decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
                   {
-                              char * s1 = cat($2, " ", $3, "(", $5->code);
-                              char * s2 = cat(s1, ")", "{\n", $8->code, "\n}");
-                              free(s1);
-                              free($2);
-                              free($3);
-                              freeRecord($5);
-                              freeRecord($8);
-                              $$ = createRecord(s2, "");
-                              free(s2);
+                        char scope[6] = "subp@"; strcat(scope, $3);
+                        push(scope); print_scopes();
+                        char * s1 = cat($2, " ", $3, "(", $5->code);
+                        char * s2 = cat(s1, ")", "{\n", $8->code, "\n}");
+                        free(s1);
+                        free($2);
+                        free($3);
+                        freeRecord($5);
+                        freeRecord($8);
+                        $$ = createRecord(s2, "");
+                        free(s2);
+                        // tirar do scopes
                   }
                   ;
 
       decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
-                              {
-                                    char * s1 = cat("void ",$2, "(", $4->code, ")\n");
-                                    char * s2 = cat(s1,"{\n", $7->code, "\n}", "");
-                                    free(s1);
-                                    free($2);
-                                    freeRecord($4);
-                                    freeRecord($7);
-                                    $$ = createRecord(s2, "");
-                                    free(s2);
-                              }                 
+                        {
+                              char scope[6] = "subp@"; strcat(scope, $2);
+                              push(scope); print_scopes();
+                              char * s1 = cat("void ",$2, "(", $4->code, ")\n");
+                              char * s2 = cat(s1,"{\n", $7->code, "\n}", "");
+                              free(s1);
+                              free($2);
+                              freeRecord($4);
+                              freeRecord($7);
+                              $$ = createRecord(s2, "");
+                              free(s2);
+                              // tirar do scopes
+                        }                 
                   ;
 
       args :          {$$ = createRecord("","");}                                                            
@@ -630,7 +640,8 @@ int main (int argc, char ** argv) {
     yyout = fopen(argv[2], "w");
     char *diretives = "#include <stdio.h>\n";
     fprintf(yyout, "%s", diretives);
-    
+
+    init_scopes();
     codigo = yyparse();
 
     fclose(yyin);

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "symboltable.h"
-#include "stack.h"
+#include "scopestack.h"
 
 char *insert_key(int id, char *type, char *auxType, struct stack *scopes, char *buffer, int lineno);
 void check_declaration(char *id);
