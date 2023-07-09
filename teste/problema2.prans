@@ -3,7 +3,7 @@ main{
     int numero = 0;
     int intervalo1 = 0, intervalo2 = 0, intervalo3 = 0, intervalo4 = 0;
 
-    while(numero > 0) {
+    while(numero >= 0) {
         print("Digite um numero negativo para encerrar: ");
         input(int numero);
 

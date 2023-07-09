@@ -2,9 +2,9 @@
 string ehPar(int numero){
 if(numero % 2 == 0){
 return "E par";
-}else{
-return "Nao e par";
 }
+else{return "Nao e par";}
+
 }
 int main(){
 int numero = 2;

@@ -1,5 +1,5 @@
 #include <stdio.h>
-void mdc(int n, int m, int r)
+void mdc(int n, m, r)
 {
     if (n == 0)
     {

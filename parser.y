@@ -318,7 +318,7 @@ extern FILE * yyin, * yyout;
                   {
                         char str[10000];
                         sprintf(str, "%d", nolabels);
-                        char * s11 = cat("if(!", $3->code, "){\n goto fim; \n}\n", "", "");
+                        char * s11 = cat("if(!(", $3->code, ")){\n goto fim; \n}\n", "", "");
                         char * s1 = cat("label", str, ":\n", s11, $6->code);
                         char * s2 = cat(s1, "\ngoto ", "label", str, ";\nfim:");
                         nolabels++;
