@@ -3,6 +3,8 @@
 #include <string.h>
 #include "symboltable.h"
 
+struct bucket **table;
+
 void malloc_hashtable()
 {
     int i;

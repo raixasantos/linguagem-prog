@@ -15,8 +15,6 @@ typedef struct bucket {
     struct bucket *next;
 } bucket;
 
-static struct bucket **table;
-
 void malloc_hashtable();
 unsigned int hash(char *s0);
 bucket *lookup(char *text);
