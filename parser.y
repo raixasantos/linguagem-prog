@@ -29,12 +29,12 @@ extern FILE * yyin, * yyout;
 %token WHILE IN DO FOR SWITCH CASE BREAK CONTINUE RETURN PRINT INPUT
 %token <iValue> NUMBER_INT
 %token <dValue> NUMBER
-%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF THEN ELSE ELSEIF LPAREN RPAREN COLON
+%token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF THEN ELSE ELSEIF LPAREN RPAREN COLON STRUCT
 %token SEMICOLON COMMA
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
-%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
+%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux decl_struct decl_structs decl_membs decl_memb acess_struct acess_structs subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
 %type <rec> decl_funcao decl_procedimento chamada_funcao chamada_procedure
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
@@ -58,6 +58,8 @@ extern FILE * yyin, * yyout;
                               $$ = createRecord(s, "");
                               free(s);
                         }
+            | decl_structs {$$ = $1;}
+            ;    
 
       decl_vars : decl_var      {$$ = $1;} 
             | decl_vars_aux {$$ = $1;} 
@@ -93,6 +95,69 @@ extern FILE * yyin, * yyout;
                         free(s1);
                   }
             ;
+      
+      decl_membs : decl_memb        {$$ = $1;}
+            | decl_memb decl_membs  {
+                                    char * s = cat($1->code, "\n", $2->code, "", "");
+                                    freeRecord($1);
+                                    freeRecord($2);
+                                    $$ = createRecord(s, "");
+                                    free(s);
+                                    }   
+            ;
+
+      decl_memb : TYPE ID SEMICOLON
+                  {
+                        char * s1 = cat($1, " ", $2, ";", "");
+                        free($2);
+                        $$ = createRecord(s1, "");
+                        free(s1);
+                  }
+      ;
+
+      decl_structs : decl_struct {$$ = $1;}
+            | decl_struct decl_structs {
+                                    char * s = cat($1->code, "\n", $2->code, "", "");
+                                    freeRecord($1);
+                                    freeRecord($2);
+                                    $$ = createRecord(s, "");
+                                    free(s);
+                                  }   
+            ;
+
+      decl_struct : STRUCT ID LBRACE decl_membs RBRACE
+                  {
+                        char * s1 = cat("typedef ", "struct ", $2, " ", "{\n");
+                        char * s2 = cat(s1, $4->code, "\n};\n", "", "");
+                        free(s1);
+                        free($2);
+                        freeRecord($4);
+                        $$ = createRecord(s2, "");
+                        free(s2);
+                  }
+                  ;
+
+      acess_structs : acess_struct {$$ = $1;}
+            | acess_struct COMMA acess_structs
+            {
+                              char * s = cat($1->code, ",", $3->code, "", "");
+                              freeRecord($1);
+                              freeRecord($3);
+                              $$ = createRecord(s, "");
+                              free(s);
+                        }
+            ;
+
+      acess_struct : ID DOT ID
+                  {
+                        char * s = cat($1, ".", $3, "", "");
+                        free($1);
+                        free($3);
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
+                  
+                  ;
 
       subps :            {$$ = createRecord("","");}                                        
             | subp subps {
@@ -187,7 +252,8 @@ extern FILE * yyin, * yyout;
                         $$ = createRecord(s, "");
                         free(s);
                   }
-            ;            
+            ;
+
       stmts:            {$$ = createRecord("","");}
             | stmts_aux {$$ = $1;}
             ;
@@ -248,6 +314,8 @@ extern FILE * yyin, * yyout;
             | condicional           
                   {$$ = $1;}
             | iteracao              
+                  {$$ = $1;}
+            | decl_memb
                   {$$ = $1;}
             ;       
 
@@ -335,6 +403,14 @@ extern FILE * yyin, * yyout;
                         $$ = createRecord(s, "");
                         free(s);
                   }
+                  | acess_struct ASSIGNMENT expressao
+                  {
+                        char * s = cat($1->code," ", "=", $3->code,"");
+                        freeRecord($1);
+                        freeRecord($3);
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
             ;
 
       return : RETURN expressao
@@ -395,6 +471,16 @@ extern FILE * yyin, * yyout;
                         $$ = createRecord(s2, "");
                         free(s2);
                   }
+            | PRINT LPAREN expressao COMMA acess_structs RPAREN
+                  {
+                        char * s1 = cat("printf", "(", $3->code, ", ", $5->code);
+                        char * s2 = cat(s1, ")", ";", "", "");
+                        free(s1);
+                        freeRecord($3);
+                        freeRecord($5);
+                        $$ = createRecord(s2, "");
+                        free(s2);
+                  }
             | PRINT LPAREN expressao RPAREN 
                   {
                         char * s = cat("printf", "(", $3->code, ")", ";");
@@ -433,7 +519,15 @@ extern FILE * yyin, * yyout;
                                                       $$ = createRecord(s, "");
                                                       free(s);
                                           }
-            |term_sec                         {$$ = $1;}
+            | terc_ops term_terc{
+                                                      char * s = cat($1->code, $2->code, "", "", "");
+                                                      freeRecord($1);
+                                                      freeRecord($2);
+                                                      $$ = createRecord(s, "");
+                                                      free(s);
+            }
+
+            | term_sec                         {$$ = $1;}
             ; 
 
       term_sec : term_prim sec_ops term_sec {
@@ -489,6 +583,8 @@ extern FILE * yyin, * yyout;
                         free(s1);
                   }
             | chamada_funcao
+                  {$$ = $1;}
+            | acess_struct
                   {$$ = $1;}
             ;
 
