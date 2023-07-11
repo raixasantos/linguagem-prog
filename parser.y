@@ -35,7 +35,7 @@ extern FILE * yyin, * yyout;
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
-%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux decl_struct decl_structs decl_membs decl_memb acess_struct acess_structs subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
+%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux decl_struct decl_structs decl_membs decl_memb access_struct access_structs subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
 %type <rec> decl_funcao decl_procedimento chamada_funcao chamada_procedure
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
@@ -127,7 +127,7 @@ extern FILE * yyin, * yyout;
                                   }   
             ;
 
-      decl_struct : STRUCT ID LBRACE decl_membs RBRACE
+      decl_struct : TYPE ID LBRACE decl_membs RBRACE
                   {
                         char * s1 = cat("typedef ", "struct ", $2, " ", "{\n");
                         char * s2 = cat(s1, $4->code, "\n};\n", "", "");
@@ -139,8 +139,8 @@ extern FILE * yyin, * yyout;
                   }
                   ;
 
-      acess_structs : acess_struct {$$ = $1;}
-            | acess_struct COMMA acess_structs
+      access_structs : access_struct {$$ = $1;}
+            | access_struct COMMA access_structs
             {
                               char * s = cat($1->code, ",", $3->code, "", "");
                               freeRecord($1);
@@ -150,7 +150,7 @@ extern FILE * yyin, * yyout;
                         }
             ;
 
-      acess_struct : ID DOT ID
+      access_struct : ID DOT ID
                   {
                         char * s = cat($1, ".", $3, "", "");
                         free($1);
@@ -410,15 +410,7 @@ extern FILE * yyin, * yyout;
                         $$ = createRecord(s);
                         free(s);
                   }
-                  | acess_struct ASSIGNMENT expressao
-                  {
-                        char * s = cat($1->code," ", "=", $3->code,"");
-                        freeRecord($1);
-                        freeRecord($3);
-                        $$ = createRecord(s);
-                        free(s);
-                  }
-                  | acess_struct ASSIGNMENT expressao
+                  | access_struct ASSIGNMENT expressao
                   {
                         char * s = cat($1->code," ", "=", $3->code,"");
                         freeRecord($1);
@@ -486,17 +478,7 @@ extern FILE * yyin, * yyout;
                         $$ = createRecord(s2);
                         free(s2);
                   }
-            | PRINT LPAREN expressao COMMA acess_structs RPAREN
-                  {
-                        char * s1 = cat("printf", "(", $3->code, ", ", $5->code);
-                        char * s2 = cat(s1, ")", ";", "", "");
-                        free(s1);
-                        freeRecord($3);
-                        freeRecord($5);
-                        $$ = createRecord(s2);
-                        free(s2);
-                  }
-            | PRINT LPAREN expressao COMMA acess_structs RPAREN
+            | PRINT LPAREN expressao COMMA access_structs RPAREN
                   {
                         char * s1 = cat("printf", "(", $3->code, ", ", $5->code);
                         char * s2 = cat(s1, ")", ";", "", "");
@@ -609,7 +591,7 @@ extern FILE * yyin, * yyout;
                   }
             | chamada_funcao
                   {$$ = $1;}
-            | acess_struct
+            | access_struct
                   {$$ = $1;}
             ;
 
