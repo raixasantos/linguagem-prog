@@ -1,30 +1,39 @@
 #include "utils.h"
 
-char *insert_key(int id, char *type, char *auxType, struct stack *scopes, char *buffer, int lineno) {
-    printf("ID: %d\n", id);
-    printf("Type: %s\n", type);
-
-    sprintf(buffer, "%s@%d", top(scopes), id);
-    check_declaration(buffer);
-    insert(buffer, auxType, type, lineno);
-    print_stack(scopes);
-
-    return buffer;
+void initialize() {
+    init_scopes();
+    int symboltableSize = 200;
+    create_symboltable(symboltableSize);
 }
 
-void check_declaration(char *id) {
-    
+void insert_scope(char* name_scope) {
+    push(name_scope);
+    print_scopes(); 
 }
 
-void *set_symbol_datatype(char *id, char *type) {
-    struct bucket *symbol = check_undeclared(id);
-    strcpy(symbol->datatype, type);
+void verify_declaration(char* name, int noline) {
+    symbol_attributes* symbolchecked = get_symbol(name);
+
+    char* string = strdup(name);
+    char* token = strtok(string, "&");
+    token = strtok(NULL, "&");
+
+    if(symbolchecked != NULL) {
+        printf("error: multiple declaration of '%s' at line %d\n", token, noline);
+        exit(0);
+    }     
 }
 
-bucket *check_undeclared(char *id) {
-    
-    struct bucket *symbol;
-    
-    return symbol;
-}
+void insert_symboltab(char* identifier, char* element_name, char* type) {
+    symbol_attributes* attributes = (symbol_attributes*)malloc(sizeof(symbol_attributes));
+    attributes->identifier = identifier;
+    attributes->element_name = element_name;
+    attributes->scope = top();
+    attributes->type = type;
 
+    char* key = strdup(top()); 
+    strcat(key,"&");
+    strcat(key, strdup(identifier));
+    insert_symbol(key, attributes);
+    print_symboltable();
+}

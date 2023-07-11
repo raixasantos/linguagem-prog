@@ -6,12 +6,11 @@
 void freeRecord(record * r){
   if (r) {
     if (r->code != NULL) free(r->code);
-	  if (r->opt1 != NULL) free(r->opt1);
     free(r);
   }
 }
 
-record * createRecord(char * c1, char * c2){
+record * createRecord(char * c1){
   record * r = (record *) malloc(sizeof(record));
 
   if (!r) {
@@ -20,7 +19,6 @@ record * createRecord(char * c1, char * c2){
   }
 
   r->code = strdup(c1);
-  r->opt1 = strdup(c2);
 
   return r;
 }
