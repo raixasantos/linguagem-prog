@@ -13,12 +13,12 @@ void push(char* value) {
     if(scope) {
         char *nameReceived = malloc(strlen(value) + 1);
         if(nameReceived) {
-            strcpy(nameReceived, value);
+            strcpy(nameReceived, strdup(value));
         }
         char scopes_sizestr[50];
         sprintf(scopes_sizestr, "#%d", scopes->size);
         strcat(nameReceived, scopes_sizestr);
-        scope->name = nameReceived;
+        scope->name = strdup(nameReceived);
         scope->next = scopes->head;
         scopes->head = scope;
         scopes->size++;
@@ -28,9 +28,17 @@ void push(char* value) {
 char* top() {
     char *top = NULL;
     if(scopes && scopes->head) {
-        top = scopes->head->name;
+        top = strdup(scopes->head->name);
     } 
     return top;
+}
+
+struct element* head() {
+    struct element *head = NULL;
+    if(scopes && scopes->head) {
+        head = scopes->head;
+    } 
+    return head;
 }
 
 void pop() {
@@ -52,7 +60,7 @@ void print_scopes(){
 
     while (scope != NULL)
     {
-        printf("%-20s\n", scope->name);
+        printf("%-20s\n", strdup(scope->name));
         scope = scope->next;
     }
     
