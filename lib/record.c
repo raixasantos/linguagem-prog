@@ -6,11 +6,13 @@
 void freeRecord(record * r){
   if (r) {
     if (r->code != NULL) free(r->code);
+    if (r->type != NULL) free(r->type);
+    if (r->params != NULL) free(r->params);
     free(r);
   }
 }
 
-record * createRecord(char * c1){
+record * createRecord(char * c1, char* c2, char* c3){
   record * r = (record *) malloc(sizeof(record));
 
   if (!r) {
@@ -19,6 +21,13 @@ record * createRecord(char * c1){
   }
 
   r->code = strdup(c1);
+  r->type = strdup(c2);
+  if (r->params != NULL) {
+    strcat(r->params, ",");
+    strcat(r->params, strdup(c3));
+  } else {
+    r->params = strdup(c3);
+  }
 
   return r;
 }
@@ -39,3 +48,8 @@ char * cat(char * s1, char * s2, char * s3, char * s4, char * s5){
   
   return output;
 }
+
+// char* concat_params(char* c1) {
+//   char * params = malloc(strlen(scoperesearched->name));;
+//   return params;
+// }

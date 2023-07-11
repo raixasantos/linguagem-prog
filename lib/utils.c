@@ -8,7 +8,7 @@ void initialize() {
 
 void insert_scope(char* name_scope) {
     push(name_scope);
-    print_scopes(); 
+    // print_scopes(); 
 }
 
 void verify_multipledecls(char* name, int noline) {
@@ -19,7 +19,7 @@ void verify_multipledecls(char* name, int noline) {
     token = strtok(NULL, "&");
 
     if(symbolchecked != NULL) {
-        printf("error: multiple declaration of '%s' at line %d\n", token, noline);
+        printf("Erro na linha %d: múltiplas declarações de '%s'.\n", noline, token);
         exit(0);
     }  
 }
@@ -44,7 +44,7 @@ void verify_declaration(char* name, int noline) {
     }
 
     if(symboltofind == NULL) {
-        printf("error: '%s' undeclared at line %d\n", name, noline);
+        printf("Erro na linha %d: '%s' não está declarada.\n", noline, name);
         exit(0);
     } 
     if(symboltofind != NULL) { // TODO: remover
@@ -65,5 +65,5 @@ void insert_symboltab(char* identifier, char* element_name, char* type) {
     strcat(key,"&");
     strcat(key, strdup(identifier));
     insert_symbol(key, attributes);
-    print_symboltable();
+    // print_symboltable();
 }
