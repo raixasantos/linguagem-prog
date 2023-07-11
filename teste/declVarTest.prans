@@ -1,5 +1,10 @@
 begin
 main{
-    int a = input();
+
+    int a = 0;
+    a = input();//isso funciona
+
+    int b = input();//isso nao funciona
+
 }
 end

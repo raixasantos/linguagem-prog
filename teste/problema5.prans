@@ -1,5 +1,6 @@
 begin
-procedure mdc(int n, m, r) {
+procedure mdc(int n, m, *r) {
+    while(){
     //inicio:
         if (n == 0) {
             r = m;
@@ -17,7 +18,7 @@ procedure mdc(int n, m, r) {
             m = m % n;
             //goto inicio;
         }
-
+    }
     //fim:
 }
 

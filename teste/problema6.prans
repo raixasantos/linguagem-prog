@@ -1,9 +1,9 @@
 begin
-typedef struct No {
+struct No {
     int chave;
     struct No* esquerda;
     struct No* direita;
-} No;
+};
 
 void inserirNo(No** raiz, int chave) {
     inicio:
