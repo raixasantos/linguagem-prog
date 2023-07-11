@@ -54,7 +54,7 @@ symbol_attributes* get_symbol(char* key) {
     // Percorre a lista ligada do bucket correspondente para encontrar o valor
     symbol* current = symboltable->buckets[index];
     while (current != NULL) {
-        if (current->key == key) { // ver se vai ser por escopo&id ou id
+        if (strcmp(current->key, key) == 0) {
             return current->attributes;
         }
         current = current->next;

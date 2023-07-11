@@ -90,7 +90,6 @@ extern FILE * yyin, * yyout;
             
       decl_var : TYPE atribuicao
                   {     
-                        
                         char * s1 = cat($1, " ", $2->code, "", "");
                         freeRecord($2);
                         $$ = createRecord(s1);
@@ -560,6 +559,7 @@ extern FILE * yyin, * yyout;
             ;    
 
       factor : ID       {     
+                              verify_declaration($1, nolineo);
                               $$ = createRecord($1);
                               free($1);
                         }
@@ -701,7 +701,8 @@ extern FILE * yyin, * yyout;
             ;
 
       chamada_funcao : ID LPAREN params RPAREN
-                  {
+                  {     
+                        verify_declaration($1, nolineo);
                         char * s1 = cat($1, "(", $3->code, ")", "");
                         free($1);
                         freeRecord($3);
@@ -711,6 +712,7 @@ extern FILE * yyin, * yyout;
                ;
     chamada_procedure : ID LPAREN params RPAREN
         {
+            verify_declaration($1, nolineo);
             char * s1 = cat($1, "(", $3->code, ")", "");
             free($1);
             freeRecord($3);
