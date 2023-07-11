@@ -127,7 +127,7 @@ extern FILE * yyin, * yyout;
                                   }   
             ;
 
-      decl_struct : TYPE ID LBRACE decl_membs RBRACE
+      decl_struct : STRUCT ID LBRACE decl_membs RBRACE
                   {
                         char * s1 = cat("typedef ", "struct ", $2, " ", "{\n");
                         char * s2 = cat(s1, $4->code, "\n};\n", "", "");

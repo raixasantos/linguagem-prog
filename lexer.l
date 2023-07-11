@@ -26,8 +26,6 @@
                         return TYPE;}
 "string"              {yylval.sValue = strdup("string"); 
                         return TYPE;}
-"struct"              { yylval.sValue = strdup("struct"); 
-                        return TYPE; }
 "concat"              { return(CONCAT); }
 "lenght"              { return(LENGHT); }
 "and"                 { return(AND); }
@@ -41,6 +39,7 @@
 "case"                { return(CASE); }
 "break"               { return(BREAK); }
 "continue"            { return(CONTINUE); }
+"struct"              { return(STRUCT); }
 "function"            { return(FUNCTION); }
 "procedure"           { return(PROCEDURE); }
 "if"                  { return(IF); }
