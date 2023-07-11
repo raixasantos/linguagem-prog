@@ -559,7 +559,6 @@ extern FILE * yyin, * yyout;
             ;    
 
       factor : ID       {     
-                              verify_declaration($1, nolineo);
                               $$ = createRecord($1);
                               free($1);
                         }
