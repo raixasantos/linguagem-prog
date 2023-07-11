@@ -1,25 +1,20 @@
 begin
-procedure mdc(int n, m, *r) {
-    while(){
-    //inicio:
-        if (n == 0) {
-            r = m;
-            // goto fim;
-        } elseif (m == 0) {
-            r = n;
-            // goto fim;
-        } elseif (n == 1 or m == 1) {
-            r = 1;
-            // goto fim;
-        } elseif (n > m) {
-            n = n % m;
-            //goto inicio;
-        } else {
-            m = m % n;
-            //goto inicio;
-        }
+procedure mdc(int n; int m; int #r) {
+   
+    if (n == 0) {
+        #r = m;
+    } elseif (m == 0) {
+        #r = n;
+    } elseif (n == 1 or m == 1) {
+        #r = 1;
+    } elseif (n > m) {
+        n = n % m;
+        mdc(n, m, r);
+    } else {
+        m = m % n;
+        mdc(n, m, r);
     }
-    //fim:
+    
 }
 
 main{
@@ -29,8 +24,8 @@ main{
     print("Digite o valor de m: ");
     m = input();
 
-    int resultado =0;
-    mdc(n, m, resultado);
+    int resultado = 0;
+    mdc(n, m, &resultado);
 
     print("O maior divisor comum entre %d e %d é: %d\n", n, m, resultado);
 }

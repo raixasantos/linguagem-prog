@@ -28,6 +28,8 @@
                         return TYPE;}
 "struct"              { yylval.sValue = strdup("struct"); 
                         return TYPE; }
+"#"                   { return(POINTER); }
+"&"                   { return(ADDRESS_POINTER); }
 "concat"              { return(CONCAT); }
 "lenght"              { return(LENGHT); }
 "and"                 { return(AND); }

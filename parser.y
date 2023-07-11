@@ -31,13 +31,13 @@ extern FILE * yyin, * yyout;
 %token <iValue> NUMBER_INT
 %token <dValue> NUMBER
 %token FUNCTION PROCEDURE BEGIN_BLOCK END_BLOCK MAIN_BLOCK IF THEN ELSE ELSEIF LPAREN RPAREN COLON STRUCT
-%token SEMICOLON COMMA
+%token SEMICOLON COMMA POINTER ADDRESS_POINTER
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
 %type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux decl_struct decl_structs decl_membs decl_memb access_struct access_structs subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
 %type <rec> decl_funcao decl_procedimento chamada_funcao chamada_procedure
-%type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
+%type <rec> ids_aux pointers args params passagem_referencia return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
 %start programa
 
@@ -244,7 +244,7 @@ extern FILE * yyin, * yyout;
             ;                  
 
       ids :         {$$ = createRecord("");}                                                         
-      | ids_aux {$$ = $1;}                                                    
+      | ids_aux {$$ = $1;}                                             
       ;
 
       ids_aux : ID 
@@ -256,6 +256,23 @@ extern FILE * yyin, * yyout;
                         char * s = cat($1, ",", $3->code, "", "");
                         free($1);
                         freeRecord($3);
+                        $$ = createRecord(s);
+                        free(s);
+                  }
+            | pointers {$$ = $1;}
+           ;
+      pointers: POINTER ID 
+                  {     char * s = cat("*", $2, "", "", "");
+
+                        $$ = createRecord(s);
+                        free($2);
+                        free(s);
+                  }                                                    
+            | POINTER ID COMMA ids_aux
+                  {
+                        char * s = cat("*",$2, ",", $4->code, "");
+                        free($2);
+                        freeRecord($4);
                         $$ = createRecord(s);
                         free(s);
                   }
@@ -418,6 +435,13 @@ extern FILE * yyin, * yyout;
                         $$ = createRecord(s);
                         free(s);
                   }
+                  | POINTER ID ASSIGNMENT expressao
+                  {     char * s = cat("*", $2, "=", $4->code, "");
+                        free($2);
+                        freeRecord($4);
+                        $$ = createRecord(s);
+                        free(s);
+                  }
             ;
 
       return : RETURN expressao
@@ -505,6 +529,17 @@ extern FILE * yyin, * yyout;
                                           $$ = createRecord(s);
                                           free(s);
                                     }
+            |  passagem_referencia  {$$ = $1;}
+            ;
+
+      passagem_referencia: ADDRESS_POINTER ID {
+            char * s1 = cat("&", $2, "", "", "");
+            free($2);
+
+            $$ = createRecord(s1);
+            free(s1);
+
+            }
             ;
 
       expressao : term_terc                           {$$ = $1;}
