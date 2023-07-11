@@ -2,30 +2,36 @@ begin
 int MAX = 10;
 
 main{
-    int matriz1[MAX][MAX], matriz2[MAX][MAX], soma[MAX][MAX], produto[MAX][MAX];
-    int linhas, colunas;
-    int i = 0, j = 0;
+    int matriz1 [MAX][MAX];
+    int matriz2[MAX][MAX];
+    int soma[MAX][MAX]; 
+    int produto[MAX][MAX];
+    int linhas = 0;
+    int colunas = 0;
+    int i = 0; 
+    int j = 0;
 
 while(linhas <= 0 or colunas <= 0 or linhas > MAX or colunas > MAX){//while ou dowhile
 
     print("Digite o numero de linhas das matrizes (maximo ): ", MAX);
-    input(linhas);
+    linhas = input();
 
     print("Digite o numero de colunas das matrizes (maximo ): ", MAX);
-    input(colunas);
+    colunas = input();
 
     print("Digite os elementos da matriz 1:\n");
     i = 0;
 }
 
-while(j < colunas)
+while(j < colunas){
     j = 0;
     print("Elemento [][]: ", i, j); //como funciona a concatenacao
-    input(matriz1[i][j]);
+    matriz1 [i][j] = input();
     j++;
 
     print("Digite os elementos da matriz 2:\n");
-    i = 0;
+    i = 0; }
+
 while(j < colunas)
 leitura_matriz2:
     j = 0;

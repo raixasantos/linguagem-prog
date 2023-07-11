@@ -35,7 +35,7 @@ extern FILE * yyin, * yyout;
 %token LESSTHENEQ MORETHENEQ LESSTHEN MORETHEN MOREISEQUAL LESSISEQUAL ISNOTEQUAL INCREMENT DECREMENT 
 %token ASSIGNMENT LBRACK RBRACK LBRACE RBRACE DOT PLUS MINUS MULTIP DIVIDE MOD POWER
 
-%type <rec> declaracao decl_vars decl_var_aux  decl_var decl_vars_aux decl_struct decl_structs decl_membs decl_memb acess_struct acess_structs subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
+%type <rec> declaracao decl_vars decl_var_aux decl_matriz decl_var decl_vars_aux decl_struct decl_structs decl_membs decl_memb acess_struct acess_structs subps subp main args_aux ids expressao stmt condicional if_single elseif else condicional_aux saida stmts_aux
 %type <rec> decl_funcao decl_procedimento chamada_funcao chamada_procedure
 %type <rec> ids_aux args params return factor stmts iteracao atribuicao entrada term_terc term_sec terc_ops relacional_ops term_prim sec_ops prim_ops
 
@@ -205,6 +205,17 @@ extern FILE * yyin, * yyout;
                   }
                   ;
 
+      decl_matriz : TYPE ID LBRACK expressao RBRACK LBRACK expressao RBRACK
+            {
+                  char * s1 = cat($2, "[", $4->code, "]", "[");
+                  char * s2 = cat(s1, $7->code, "]", "", "");
+                  free(s1);
+                  freeRecord($4);
+                  freeRecord($7);
+                  $$ = createRecord(s2, "");
+                  free(s2);
+           }
+
       decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
                         {
                               char scope[6] = "subp@"; strcat(scope, $2);
@@ -289,6 +300,13 @@ extern FILE * yyin, * yyout;
             | return SEMICOLON
                   {
                         char * s = cat($1->code, "", "", "", "");
+                        freeRecord($1);
+                        $$ = createRecord(s, "");
+                        free(s);
+                  }
+            | decl_matriz SEMICOLON 
+                  {
+                        char * s = cat($1->code, ";", "", "", "");
                         freeRecord($1);
                         $$ = createRecord(s, "");
                         free(s);
@@ -420,6 +438,18 @@ extern FILE * yyin, * yyout;
                         freeRecord($3);
                         $$ = createRecord(s, "");
                         free(s);
+                  }
+                  | ID LBRACK expressao RBRACK LBRACK expressao RBRACK ASSIGNMENT expressao
+                  {
+                        char * s1 = cat($1, "[", $3->code, "]", "[");
+                        char * s2 = cat(s1, $6->code, "]", "=", $9->code);
+                        free(s1);
+                        free($1);
+                        freeRecord($3);
+                        freeRecord($6);
+                        freeRecord($9);
+                        $$ = createRecord(s2, "");
+                        free(s2);
                   }
             ;
 
