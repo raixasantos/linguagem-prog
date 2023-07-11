@@ -360,16 +360,16 @@ extern FILE * yyin, * yyout;
                   {     
                         char* s = "";
                         if(!strcmp($3,"int")){
-                        s = cat("scanf(\"%d\", ", $4, ");" , "", "");
+                        s = cat("scanf(\"%d\", ","&", $4, ");", "");
                         $$ = createRecord(s, "");
                         }else if(!strcmp($3,"float")){
-                              s = cat("scanf(\"%lf\", ", $4, ");" , "", "");
+                              s = cat("scanf(\"%lf\", ", "&", $4, ");", "");
                               $$ = createRecord(s, "");
                         }else if(!strcmp($3,"string")){
-                              s = cat("scanf(\"%s\", ", $4, ");" , "", "");
+                              s = cat("scanf(\"%s\", ", "&", $4, ");", "");
                               $$ = createRecord(s, "");
                         }else if(!strcmp($3,"bool")){
-                              s = cat("scanf(\"%i\", ", $4, ");" , "", "");
+                              s = cat("scanf(\"%i\", ", "&", $4, ");", "");
                               $$ = createRecord(s, "");
                         }
                         free(s);
@@ -377,18 +377,18 @@ extern FILE * yyin, * yyout;
                 | ID ASSIGNMENT INPUT LPAREN RPAREN
                   {     
                         char* s = "";
-                         char* type_temp = "int";//Mudar isso
+                        char* type_temp = "int";//Mudar isso
                         if(!strcmp(type_temp,"int")){
-                        s = cat("scanf(\"%d\", ", $1, ");" , "", "");
+                        s = cat("scanf(\"%d\", ", "&", $1, ");", "");
                         $$ = createRecord(s, "");
                         }else if(!strcmp(type_temp,"float")){
-                              s = cat("scanf(\"%lf\", ", $1, ");" , "", "");
+                              s = cat("scanf(\"%lf\", ", "&", $1, ");", "");
                               $$ = createRecord(s, "");
                         }else if(!strcmp(type_temp,"string")){
-                              s = cat("scanf(\"%s\", ", $1, ");" , "", "");
+                              s = cat("scanf(\"%s\", ", "&", $1, ");", "");
                               $$ = createRecord(s, "");
                         }else if(!strcmp(type_temp,"bool")){
-                              s = cat("scanf(\"%i\", ", $1, ");" , "", "");
+                              s = cat("scanf(\"%i\", ", "&", $1, ");", "");
                               $$ = createRecord(s, "");
                         }
                         free(s);
