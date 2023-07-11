@@ -7,7 +7,7 @@ lex.yy.c: lexer.l
 	lex lexer.l
 
 y.tab.c: parser.y  
-	yacc parser.y -d -v
+	yacc parser.y -d -v -Wcounterexamples
 
 clean:
 	rm -rf lex.yy.c y.tab.* compiler output.txt y.output
