@@ -1,45 +1,45 @@
 begin
 
-typedef struct {
+struct rational_t{
     int numerador;
     int denominador;
-} rational_t;
+}
 
-rational_t criarRacional(int a, int b) {
-    rational_t racional;
+function int criarRacional(int a, b) {
+    int racional;
     racional.numerador = a;
     racional.denominador = b;
     return racional;
 }
 
-bool saoIguais(rational_t r1, rational_t r2) {
+function bool saoIguais(int r1, r2) {
     return (r1.numerador * r2.denominador) == (r2.numerador * r1.denominador);
 }
 
-rational_t somarRacionais(rational_t r1, rational_t r2) {
+function int somarRacionais(int r1, r2) {
     int numerador = (r1.numerador * r2.denominador) + (r2.numerador * r1.denominador);
     int denominador = r1.denominador * r2.denominador;
     return criarRacional(numerador, denominador);
 }
 
-rational_t negarRacional(rational_t r) {
+function int negarRacional(int r) {
     int numerador = -r.numerador;
     int denominador = r.denominador;
     return criarRacional(numerador, denominador);
 }
 
-rational_t subtrairRacionais(rational_t r1, rational_t r2) {
-    rational_t negativo = negarRacional(r2);
+function int subtrairRacionais(int r1, r2) {
+    int negativo = negarRacional(r2);
     return somarRacionais(r1, negativo);
 }
 
-rational_t multiplicarRacionais(rational_t r1, rational_t r2) {
+function int multiplicarRacionais(int r1, r2) {
     int numerador = r1.numerador * r2.numerador;
     int denominador = r1.denominador * r2.denominador;
     return criarRacional(numerador, denominador);
 }
 
-rational_t inversoRacional(rational_t r) {
+function int inversoRacional(int r) {
     if (r.numerador == 0) {
         print("Erro: Divisão por zero!\n");
         return criarRacional(0, 1);
@@ -49,14 +49,14 @@ rational_t inversoRacional(rational_t r) {
     return criarRacional(numerador, denominador);
 }
 
-rational_t dividirRacionais(rational_t r1, rational_t r2) {
-    rational_t inverso = inversoRacional(r2);
+function int dividirRacionais(int r1, r2) {
+    int inverso = inversoRacional(r2);
     return multiplicarRacionais(r1, inverso);
 }
 
 main{
-    rational_t racional1 = criarRacional(3, 4);
-    rational_t racional2 = criarRacional(6, 8);
+    int racional1 = criarRacional(3, 4);
+    int racional2 = criarRacional(6, 8);
 
     print("Numerador de racional1: %d\n", racional1.numerador);
     print("Denominador de racional1: %d\n", racional1.denominador);
@@ -71,22 +71,22 @@ main{
         print("Os racionais sao diferentes\n");
     }
 
-    rational_t soma = somarRacionais(racional1, racional2);
+    int soma = somarRacionais(racional1, racional2);
     print("Soma dos racionais: %d/%d\n", soma.numerador, soma.denominador);
 
-    rational_t negativo = negarRacional(racional1);
+    int negativo = negarRacional(racional1);
     print("Negativo de racional1: %d/%d\n", negativo.numerador, negativo.denominador);
 
-    rational_t subtracao = subtrairRacionais(racional1, racional2);
+    int subtracao = subtrairRacionais(racional1, racional2);
     print("Subtracao dos racionais: %d/%d\n", subtracao.numerador, subtracao.denominador);
 
-    rational_t multiplicacao = multiplicarRacionais(racional1, racional2);
+    int multiplicacao = multiplicarRacionais(racional1, racional2);
     print("Multiplicacao dos racionais: %d/%d\n", multiplicacao.numerador, multiplicacao.denominador);
 
-    rational_t inverso = inversoRacional(racional1);
+    int inverso = inversoRacional(racional1);
     print("Inverso de racional1: %d/%d\n", inverso.numerador, inverso.denominador);
 
-    rational_t divisao = dividirRacionais(racional1, racional2);
+    int divisao = dividirRacionais(racional1, racional2);
     print("Divisao dos racionais: %d/%d\n", divisao.numerador, divisao.denominador);
 }
 end

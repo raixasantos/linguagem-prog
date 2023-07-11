@@ -39,6 +39,7 @@
 "case"                { return(CASE); }
 "break"               { return(BREAK); }
 "continue"            { return(CONTINUE); }
+"struct"              { return(STRUCT); }
 "function"            { return(FUNCTION); }
 "procedure"           { return(PROCEDURE); }
 "if"                  { return(IF); }
