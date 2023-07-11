@@ -4,7 +4,7 @@
 #include "symboltable.h"
 #include "scopestack.h"
 
-char *insert_key(int id, char *type, char *auxType, struct stack *scopes, char *buffer, int lineno);
-void check_declaration(char *id);
-void *set_symbol_datatype(char *id, char *type);
-bucket *check_undeclared(char *id);
+void initialize();
+void insert_symboltab(char* identifier, char* element_name, char* type);
+void insert_scope(char* name_scope);
+void verify_declaration(char* name, int noline);

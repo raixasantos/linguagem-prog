@@ -9,11 +9,11 @@ typedef struct element {
 
 typedef struct stack {
     struct element *head;
+    int size;
 } scope_stack;
 
 void init_scopes();
 void push(char* value);
-char* increment_noscopes();
 char* top();
 void pop();
 void print_scopes();

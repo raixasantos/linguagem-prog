@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./lib/record.h"
-#include "./lib/scopestack.h"
+#include "./lib/utils.h"
 
 
 int yylex(void); // retorna o numero correspondente ao token lido
@@ -42,22 +42,21 @@ extern FILE * yyin, * yyout;
 %start programa
 
 %%
-      programa : BEGIN_BLOCK declaracao subps main END_BLOCK
+      programa : BEGIN_BLOCK {insert_scope("global");} declaracao subps main END_BLOCK
                   {
-                        push("global"); print_scopes(); 
-                        fprintf(yyout, "%s%s%s", $2->code, $3->code, $4->code);
-                        freeRecord($2);
+                        fprintf(yyout, "%s%s%s", $3->code, $4->code, $5->code);
                         freeRecord($3);
-                        freeRecord($4);                        
+                        freeRecord($4);
+                        freeRecord($5);                        
                   }                                            
             ;
 
-      declaracao:       {$$ = createRecord("","");}
+      declaracao:       {$$ = createRecord("");}
             | decl_vars SEMICOLON 
                         {
                               char * s = cat($1->code, ";\n", "", "", "");
                               freeRecord($1);
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | decl_structs {$$ = $1;}
@@ -72,7 +71,7 @@ extern FILE * yyin, * yyout;
                               char * s = cat($1->code, ", ", $3->code, "", "");
                               freeRecord($1);
                               freeRecord($3);
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
                   ;
@@ -83,17 +82,18 @@ extern FILE * yyin, * yyout;
                               char * s = cat($1->code, ", ", $3->code, "", "");
                               freeRecord($1);
                               freeRecord($3);
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
                   ;
 
             
       decl_var : TYPE atribuicao
-                  {
+                  {     
+                        
                         char * s1 = cat($1, " ", $2->code, "", "");
                         freeRecord($2);
-                        $$ = createRecord(s1, "");
+                        $$ = createRecord(s1);
                         free(s1);
                   }
             ;
@@ -103,7 +103,7 @@ extern FILE * yyin, * yyout;
                                     char * s = cat($1->code, "\n", $2->code, "", "");
                                     freeRecord($1);
                                     freeRecord($2);
-                                    $$ = createRecord(s, "");
+                                    $$ = createRecord(s);
                                     free(s);
                                     }   
             ;
@@ -112,7 +112,7 @@ extern FILE * yyin, * yyout;
                   {
                         char * s1 = cat($1, " ", $2, ";", "");
                         free($2);
-                        $$ = createRecord(s1, "");
+                        $$ = createRecord(s1);
                         free(s1);
                   }
       ;
@@ -122,7 +122,7 @@ extern FILE * yyin, * yyout;
                                     char * s = cat($1->code, "\n", $2->code, "", "");
                                     freeRecord($1);
                                     freeRecord($2);
-                                    $$ = createRecord(s, "");
+                                    $$ = createRecord(s);
                                     free(s);
                                   }   
             ;
@@ -134,7 +134,7 @@ extern FILE * yyin, * yyout;
                         free(s1);
                         free($2);
                         freeRecord($4);
-                        $$ = createRecord(s2, "");
+                        $$ = createRecord(s2);
                         free(s2);
                   }
                   ;
@@ -145,7 +145,7 @@ extern FILE * yyin, * yyout;
                               char * s = cat($1->code, ",", $3->code, "", "");
                               freeRecord($1);
                               freeRecord($3);
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             ;
@@ -155,18 +155,18 @@ extern FILE * yyin, * yyout;
                         char * s = cat($1, ".", $3, "", "");
                         free($1);
                         free($3);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
                   
                   ;
 
-      subps :            {$$ = createRecord("","");}                                        
+      subps :            {$$ = createRecord("");}                                        
             | subp subps {
                               char * s = cat($1->code, "\n", $2->code, "", "");
                               freeRecord($1);
                               freeRecord($2);
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }                                          
             ;
@@ -175,53 +175,50 @@ extern FILE * yyin, * yyout;
       | decl_procedimento {$$ = $1;}                                              
       ;
 
-      main : MAIN_BLOCK LBRACE stmts RBRACE
+      main : MAIN_BLOCK {insert_scope("main"); } 
+             LBRACE stmts RBRACE
                   {
-                        char* scope = "main";
-                        push(scope); print_scopes();
-                        char * s1 = cat("int main", "(", ")", "{\n", $3->code);
+                        char * s1 = cat("int main", "(", ")", "{\n", $4->code);
                         char * s2 = cat(s1, "\nreturn 0;", "\n}", "", "");
                         free(s1);
-                        freeRecord($3);
-                        $$ = createRecord(s2, "");
+                        freeRecord($4);
+                        $$ = createRecord(s2);
                         free(s2);
                   }
       ;
 
-      decl_funcao : FUNCTION TYPE ID LPAREN args RPAREN  LBRACE stmts RBRACE             
+      decl_funcao : FUNCTION TYPE ID {insert_symboltab($3, "function", $2); insert_scope($3);} 
+                    LPAREN args RPAREN  LBRACE stmts RBRACE             
                   {
-                        char scope[6] = "subp@"; strcat(scope, $3);
-                        push(scope); print_scopes();
-                        char * s1 = cat($2, " ", $3, "(", $5->code);
-                        char * s2 = cat(s1, ")", "{\n", $8->code, "\n}");
+                        char * s1 = cat($2, " ", $3, "(", $6->code);
+                        char * s2 = cat(s1, ")", "{\n", $9->code, "\n}");
                         free(s1);
                         free($2);
                         free($3);
-                        freeRecord($5);
-                        freeRecord($8);
-                        $$ = createRecord(s2, "");
+                        freeRecord($6);
+                        freeRecord($9);
+                        $$ = createRecord(s2);
                         free(s2);
                         // tirar do scopes
                   }
                   ;
 
-      decl_procedimento : PROCEDURE ID LPAREN args RPAREN LBRACE stmts RBRACE  
+      decl_procedimento : PROCEDURE ID {insert_symboltab($2, "procedure", "void"); insert_scope($2);} 
+                          LPAREN args RPAREN LBRACE stmts RBRACE  
                         {
-                              char scope[6] = "subp@"; strcat(scope, $2);
-                              push(scope); print_scopes();
-                              char * s1 = cat("void ",$2, "(", $4->code, ")\n");
-                              char * s2 = cat(s1,"{\n", $7->code, "\n}", "");
+                              char * s1 = cat("void ",$2, "(", $5->code, ")\n");
+                              char * s2 = cat(s1,"{\n", $8->code, "\n}", "");
                               free(s1);
                               free($2);
-                              freeRecord($4);
-                              freeRecord($7);
-                              $$ = createRecord(s2, "");
+                              freeRecord($5);
+                              freeRecord($8);
+                              $$ = createRecord(s2);
                               free(s2);
                               // tirar do scopes
                         }                 
                   ;
 
-      args :          {$$ = createRecord("","");}                                                            
+      args :          {$$ = createRecord("");}                                                            
       | args_aux {$$ = $1;}                                                 
       ;
 
@@ -230,7 +227,7 @@ extern FILE * yyin, * yyout;
                         char * s = cat($1, " ", $2->code, "", "");
                         free($1);
                         freeRecord($2);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }                                      
             | TYPE ids SEMICOLON args_aux     
@@ -241,17 +238,17 @@ extern FILE * yyin, * yyout;
                         free($1);
                         freeRecord($2);
                         freeRecord($4);
-                        $$ = createRecord(s1, "");
+                        $$ = createRecord(s1);
                         free(s1);
                   }                            
             ;                  
 
-      ids :         {$$ = createRecord("","");}                                                         
+      ids :         {$$ = createRecord("");}                                                         
       | ids_aux {$$ = $1;}                                                    
       ;
 
       ids_aux : ID 
-                  {$$ = createRecord($1, "");
+                  {$$ = createRecord($1);
                         free($1);
                   }                                                    
             | ID COMMA ids_aux
@@ -259,12 +256,12 @@ extern FILE * yyin, * yyout;
                         char * s = cat($1, ",", $3->code, "", "");
                         free($1);
                         freeRecord($3);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             ;
 
-      stmts:            {$$ = createRecord("","");}
+      stmts:            {$$ = createRecord("");}
             | stmts_aux {$$ = $1;}
             ;
 
@@ -274,7 +271,7 @@ extern FILE * yyin, * yyout;
                         char * s = cat($1->code, "\n", $2->code, "", "");
                         freeRecord($1);
                         freeRecord($2);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             ;
@@ -283,42 +280,42 @@ extern FILE * yyin, * yyout;
                   {
                         char * s = cat($1->code, ";", "", "", "");
                         freeRecord($1);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | return SEMICOLON
                   {
                         char * s = cat($1->code, "", "", "", "");
                         freeRecord($1);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | atribuicao SEMICOLON
                   {
                         char * s = cat($1->code, ";", "", "", "");
                         freeRecord($1);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | entrada SEMICOLON
                   {
                         char * s = cat($1->code, "", "", "", "");
                         freeRecord($1);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | saida SEMICOLON
                   {
                         char * s = cat($1->code, "", "", "", "");
                         freeRecord($1);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | chamada_procedure SEMICOLON
                   {
                         char * s = cat($1->code, ";", "", "", "");
                         freeRecord($1);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | condicional           
@@ -335,18 +332,18 @@ extern FILE * yyin, * yyout;
                 char * s = cat($1->code, "\n", $2->code, "", "");
                 freeRecord($1);
                 freeRecord($2);
-                $$ = createRecord(s, "");
+                $$ = createRecord(s);
                 free(s);
                }  
      ; 
             ;
-      condicional_aux :        {$$ = createRecord("","");}
+      condicional_aux :        {$$ = createRecord("");}
                   | elseif condicional_aux
                   {
                     char * s = cat($1->code, "\n", $2->code, "", "");
                     freeRecord($1);
                     freeRecord($2);
-                    $$ = createRecord(s, "");
+                    $$ = createRecord(s);
                     free(s);
                     } 
                   | else  {$$ = $1;}
@@ -355,7 +352,7 @@ extern FILE * yyin, * yyout;
             {
                 char * s = cat("else", "{", $3->code, "}", "\n");
                 freeRecord($3);
-                $$ = createRecord(s, "");
+                $$ = createRecord(s);
                 free(s);
             };
 
@@ -366,7 +363,7 @@ extern FILE * yyin, * yyout;
             free(s1);
             freeRecord($3);
             freeRecord($6);
-            $$ = createRecord(s2, "");
+            $$ = createRecord(s2);
             free(s2);
       }
             ;
@@ -378,7 +375,7 @@ extern FILE * yyin, * yyout;
             free(s1);
             freeRecord($3);
             freeRecord($6);
-            $$ = createRecord(s2, "");
+            $$ = createRecord(s2);
             free(s2);
       }
 
@@ -394,7 +391,7 @@ extern FILE * yyin, * yyout;
                         free(s11);
                         freeRecord($3);
                         freeRecord($6);
-                        $$ = createRecord(s2, "");
+                        $$ = createRecord(s2);
                         free(s2);
                   }
             ;  
@@ -403,14 +400,14 @@ extern FILE * yyin, * yyout;
                   {
                         char * s = cat($1," ", "= ", $3->code,"");
                         freeRecord($3);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
                   | ID MOREISEQUAL expressao
                   {
                         char * s = cat($1," ", "+= ", $3->code,"");
                         freeRecord($3);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
                   | acess_struct ASSIGNMENT expressao
@@ -418,7 +415,15 @@ extern FILE * yyin, * yyout;
                         char * s = cat($1->code," ", "=", $3->code,"");
                         freeRecord($1);
                         freeRecord($3);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
+                        free(s);
+                  }
+                  | acess_struct ASSIGNMENT expressao
+                  {
+                        char * s = cat($1->code," ", "=", $3->code,"");
+                        freeRecord($1);
+                        freeRecord($3);
+                        $$ = createRecord(s);
                         free(s);
                   }
             ;
@@ -427,26 +432,26 @@ extern FILE * yyin, * yyout;
                   {
                         char * s = cat("return", " ", $2->code, ";", "");
                         freeRecord($2);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             ;
 
-      entrada : INPUT LPAREN TYPE ID RPAREN //essse type é realmente preciso?
+      entrada : INPUT LPAREN TYPE ID RPAREN //esse type é realmente preciso?
                   {     
                         char* s = "";
                         if(!strcmp($3,"int")){
                         s = cat("scanf(\"%d\", ","&", $4, ");", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         }else if(!strcmp($3,"float")){
                               s = cat("scanf(\"%lf\", ", "&", $4, ");", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                         }else if(!strcmp($3,"string")){
                               s = cat("scanf(\"%s\", ", "&", $4, ");", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                         }else if(!strcmp($3,"bool")){
                               s = cat("scanf(\"%i\", ", "&", $4, ");", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                         }
                         free(s);
                   }
@@ -456,16 +461,16 @@ extern FILE * yyin, * yyout;
                         char* type_temp = "int";//Mudar isso
                         if(!strcmp(type_temp,"int")){
                         s = cat("scanf(\"%d\", ", "&", $1, ");", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         }else if(!strcmp(type_temp,"float")){
                               s = cat("scanf(\"%lf\", ", "&", $1, ");", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                         }else if(!strcmp(type_temp,"string")){
                               s = cat("scanf(\"%s\", ", "&", $1, ");", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                         }else if(!strcmp(type_temp,"bool")){
                               s = cat("scanf(\"%i\", ", "&", $1, ");", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                         }
                         free(s);
                   }
@@ -478,7 +483,7 @@ extern FILE * yyin, * yyout;
                         free(s1);
                         freeRecord($3);
                         freeRecord($5);
-                        $$ = createRecord(s2, "");
+                        $$ = createRecord(s2);
                         free(s2);
                   }
             | PRINT LPAREN expressao COMMA acess_structs RPAREN
@@ -488,14 +493,24 @@ extern FILE * yyin, * yyout;
                         free(s1);
                         freeRecord($3);
                         freeRecord($5);
-                        $$ = createRecord(s2, "");
+                        $$ = createRecord(s2);
+                        free(s2);
+                  }
+            | PRINT LPAREN expressao COMMA acess_structs RPAREN
+                  {
+                        char * s1 = cat("printf", "(", $3->code, ", ", $5->code);
+                        char * s2 = cat(s1, ")", ";", "", "");
+                        free(s1);
+                        freeRecord($3);
+                        freeRecord($5);
+                        $$ = createRecord(s2);
                         free(s2);
                   }
             | PRINT LPAREN expressao RPAREN 
                   {
                         char * s = cat("printf", "(", $3->code, ")", ";");
                         freeRecord($3);
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             ;
@@ -505,7 +520,7 @@ extern FILE * yyin, * yyout;
                                           char * s = cat($1->code, ",", $3->code, "", "");
                                           freeRecord($1);
                                           freeRecord($3);
-                                          $$ = createRecord(s, "");
+                                          $$ = createRecord(s);
                                           free(s);
                                     }
             ;
@@ -516,7 +531,7 @@ extern FILE * yyin, * yyout;
                                                             freeRecord($1);
                                                             freeRecord($2);
                                                             freeRecord($3);
-                                                            $$ = createRecord(s, "");
+                                                            $$ = createRecord(s);
                                                             free(s);
                                                       }                                   
             ;
@@ -526,14 +541,14 @@ extern FILE * yyin, * yyout;
                                                       freeRecord($1);
                                                       freeRecord($2);
                                                       freeRecord($3);
-                                                      $$ = createRecord(s, "");
+                                                      $$ = createRecord(s);
                                                       free(s);
                                           }
             | terc_ops term_terc{
                                                       char * s = cat($1->code, $2->code, "", "", "");
                                                       freeRecord($1);
                                                       freeRecord($2);
-                                                      $$ = createRecord(s, "");
+                                                      $$ = createRecord(s);
                                                       free(s);
             }
 
@@ -545,7 +560,7 @@ extern FILE * yyin, * yyout;
                                                 freeRecord($1);
                                                 freeRecord($2);
                                                 freeRecord($3);
-                                                $$ = createRecord(s, "");
+                                                $$ = createRecord(s);
                                                 free(s);
                                           }
             |term_prim                      {$$ = $1;}
@@ -556,32 +571,32 @@ extern FILE * yyin, * yyout;
                                                 freeRecord($1);
                                                 freeRecord($2);
                                                 freeRecord($3);
-                                                $$ = createRecord(s, "");
+                                                $$ = createRecord(s);
                                                 free(s);
                                           }
             |factor                         {$$ = $1;}
             ;    
 
       factor : ID       {     
-                              $$ = createRecord($1, "");
+                              $$ = createRecord($1);
                               free($1);
                         }
             | NUMBER_INT {    
                               char* str = malloc(sizeof(char) * 1000); 
                               sprintf(str, "%d", $1);
-                              $$ = createRecord(str, "");
+                              $$ = createRecord(str);
                               free(str);
                         }
             | NUMBER     {    char* str = malloc(sizeof(char) * 1000); 
                               sprintf(str, "%lf", $1);
-                              $$ = createRecord(str, "");
+                              $$ = createRecord(str);
                               free(str);
                         }
             | LIT_STRING {    char* print = malloc(sizeof(char) *10000);
                               if($1 != NULL) {
                                     sprintf(print, "%s", $1);
                               }
-                              $$ = createRecord(print, "");
+                              $$ = createRecord(print);
                               free($1);
                               free(print);
                         }
@@ -589,7 +604,7 @@ extern FILE * yyin, * yyout;
                   {
                         char * s1 = cat("(", $2->code, ")", "", "");
                         freeRecord($2);
-                        $$ = createRecord(s1, "");
+                        $$ = createRecord(s1);
                         free(s1);
                   }
             | chamada_funcao
@@ -601,61 +616,61 @@ extern FILE * yyin, * yyout;
       relacional_ops : AND
                         {
                               char * s = cat(" && ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | OR
                         {
                               char * s = cat(" || ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | ISEQUAL
                         {
                               char * s = cat(" == ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | ISNOTEQUAL
                         {
                               char * s = cat(" != ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | LESSTHENEQ
                         {
                               char * s = cat(" <= ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | MORETHENEQ
                         {
                               char * s = cat(" >= ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | LESSTHEN
                         {
                               char * s = cat(" < ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | MORETHEN
                         {
                               char * s = cat(" > ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | MOREISEQUAL
                         {
                               char * s = cat(" += ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             | LESSISEQUAL
                         {
                               char * s = cat(" -= ", "", "", "", "");
-                              $$ = createRecord(s, "");
+                              $$ = createRecord(s);
                               free(s);
                         }
             
@@ -664,7 +679,7 @@ extern FILE * yyin, * yyout;
       prim_ops : POWER 
                   {
                         char * s = cat(" ^ ", "", "", "", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
       ;
@@ -672,19 +687,19 @@ extern FILE * yyin, * yyout;
       sec_ops : DIVIDE
                   {
                         char * s = cat(" / ", "", "", "", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | MULTIP
                   {
                         char * s = cat(" * ", "", "", "", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | MOD
                   {
                         char * s = cat(" % ", "", "", "", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
       ;
@@ -692,13 +707,13 @@ extern FILE * yyin, * yyout;
       terc_ops : PLUS
                   {
                         char * s = cat(" + ", "", "", "", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             | MINUS
                   {
                         char * s = cat(" - ", "", "", "", "");
-                        $$ = createRecord(s, "");
+                        $$ = createRecord(s);
                         free(s);
                   }
             ;
@@ -708,7 +723,7 @@ extern FILE * yyin, * yyout;
                         char * s1 = cat($1, "(", $3->code, ")", "");
                         free($1);
                         freeRecord($3);
-                        $$ = createRecord(s1, "");
+                        $$ = createRecord(s1);
                         free(s1);
                   }
                ;
@@ -717,7 +732,7 @@ extern FILE * yyin, * yyout;
             char * s1 = cat($1, "(", $3->code, ")", "");
             free($1);
             freeRecord($3);
-            $$ = createRecord(s1, "");
+            $$ = createRecord(s1);
             free(s1);
         }
     ;
@@ -737,7 +752,7 @@ int main (int argc, char ** argv) {
     char *diretives = "#include <stdio.h>\n";
     fprintf(yyout, "%s", diretives);
 
-    init_scopes();
+    initialize();
     codigo = yyparse();
 
     fclose(yyin);

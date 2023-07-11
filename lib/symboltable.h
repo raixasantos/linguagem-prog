@@ -1,24 +1,28 @@
-#define SIZE 200
-#define SIZE_TEXT 100
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-typedef struct linenumber_bucket {
-    int line;
-    struct linenumber_bucket *next;
-} linenumber_bucket;
+typedef struct Attributes {
+    char* identifier;
+    char* element_name;
+    char* type;
+    char* scope;
+} symbol_attributes;
 
-typedef struct bucket {
-    char text[SIZE_TEXT];
-    char datatype[40];
-    char type[40];
-    char value[40];
-    linenumber_bucket *lineslist;
-    struct bucket *next;
-} bucket;
+typedef struct Symbol {
+    char* key;
+    symbol_attributes* attributes;
+    struct Symbol* next;
+} symbol;
 
-void malloc_hashtable();
-unsigned int hash(char *s0);
-bucket *lookup(char *text);
-void insert(char *text, char *datatype, char *type, int linenumber);
-void insert_linenumber(char *text, char *datatype, char *type, int linenumber);
+typedef struct Hashtable {
+    int size;
+    symbol** buckets;
+} hashtable;
+
+
+void create_symboltable(int size);
+unsigned int generate_hash(char* key);
+void insert_symbol(char* key, symbol_attributes* attributes);
+symbol_attributes* get_symbol(char* key);
 void print_symboltable();
-void dump_symboltable(char *filename);

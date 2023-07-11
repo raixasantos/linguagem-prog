@@ -1,147 +1,136 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "symboltable.h"
 
-struct bucket **table;
+hashtable* symboltable;
 
-void malloc_hashtable()
-{
-    int i;
-    table = malloc(SIZE * sizeof(bucket *));
-    for (i = 0; i < SIZE; i++)
-        table[i] = NULL;
+// Função para criar a hashtable
+void create_symboltable(int size) {
+    symboltable = (hashtable*)malloc(sizeof(hashtable));
+    symboltable->size = size;
+    symboltable->buckets = (symbol**)malloc(size * sizeof(symbol*));
+  
+    // Inicializa cada bucket como NULL
+    for (int i = 0; i < size; i++) {
+        symboltable->buckets[i] = NULL;
+    }
 }
 
-unsigned int hash(char *key)
-{
+unsigned int generate_hash(char* key) {
     unsigned int hash = 5381;
     int c;
     while ((c = *key++) != 0)
         hash = ((hash << 5) + hash) + c;
-
-    return hash % SIZE;
+    return hash % symboltable->size;
 }
 
-bucket *lookup(char *name)
-{
-    unsigned int hashval = hash(name);
-    bucket *b = table[hashval];
-    while ((b != NULL) && (strcmp(name, b->text) != 0))
-        b = b->next;
-    return b;
-}
+void insert_symbol(char* key, symbol_attributes* attributes) {
+    // Calcula o índice do bucket com base na chave    
+    int index = generate_hash(key);
 
-void insert(char *text, char *datatype, char *type, int linenumber)
-{
-    unsigned int index = hash(text);
-    bucket *b = table[index];
+    // Cria um novo nó-símbolo
+    symbol_attributes* attributesReceived = attributes;
 
-    while ((b != NULL) && (strcmp(b->text, text) != 0))
-        b = b->next;
+    symbol* newSymbol = (symbol*)malloc(sizeof(symbol));
+    newSymbol->key = key;
+    newSymbol->attributes = attributesReceived;
+    newSymbol->next = NULL;
 
-    if (b == NULL)
-    {
-        b = (bucket *)malloc(sizeof(bucket));
-        strcpy(b->text, text);
-        strcpy(b->datatype, datatype);
-        strcpy(b->type, type);
-        b->lineslist = (linenumber_bucket *)malloc(sizeof(linenumber_bucket));
-        b->lineslist->line = linenumber;
-        b->lineslist->next = NULL;
-        b->next = table[index];
-        table[index] = b;
+    // Insere o nó no início da lista ligada do bucket correspondente
+    if (symboltable->buckets[index] == NULL) {
+        symboltable->buckets[index] = newSymbol;
+    } else {
+        symbol* current = symboltable->buckets[index];
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newSymbol;
     }
 }
 
-void insert_linenumber(char *text, char *datatype, char *type, int linenumber)
-{
-    unsigned int index = hash(text);
+// Função para obter um valor da hashtable com base na chave
+symbol_attributes* get_symbol(char* key) {
+    // Calcula o índice do bucket com base na chave
+    int index = generate_hash(key);
 
-    bucket *b = table[index];
-    while ((b != NULL) && (strcmp(b->text, text) != 0))
-        b = b->next;
+    // Percorre a lista ligada do bucket correspondente para encontrar o valor
+    symbol* current = symboltable->buckets[index];
+    while (current != NULL) {
+        if (current->key == key) { // ver se vai ser por escopo&id ou id
+            return current->attributes;
+        }
+        current = current->next;
+    }
 
-    linenumber_bucket *t = b->lineslist;
-    while (t->next != NULL)
-        t = t->next;
-
-    t->next = (linenumber_bucket *)malloc(sizeof(linenumber_bucket));
-    t->next->line = linenumber;
-    t->next->next = NULL;
-    printf("Found %s again at line %d!\n", text, linenumber);
+    // Retorna NULL se a chave não for encontrada
+    return NULL;
 }
 
-void print_symboltable()
-{
+// Função para imprimir os elementos da hashtable
+void print_symboltable() {
     printf("\n");
-    printf("Scope@Id   Datatype  Type     Value  Line Numbers\n");
-    printf("---------- -------- --------- ------ -----------------\n");
+    printf("Symbol Table\n");
+    printf("--------------------\n");
+    for (int i = 0; i < symboltable->size; i++) {
+        printf("Bucket %d: ", i);
+        symbol* current = symboltable->buckets[i];
+        while (current != NULL) {
+            printf("(%s, id: %s, element: %s, type: %s, scope: %s) ", current->key, current->attributes->identifier, current->attributes->element_name,
+            current->attributes->type, current->attributes->scope);
+            current = current->next;
+        }
+        printf("\n");
+    }
 
-    for (int i = 0; i < SIZE; ++i)
-    {
-        if (table[i] != NULL)
-        {
-            bucket *b = table[i];
+    printf("--------------------\n");
+}
 
-            while (b != NULL)
-            {
-                linenumber_bucket *t = b->lineslist;
-                printf("%-10s ", b->text);
-                printf("%-8s ", b->datatype);
-                printf("%-9s ", b->type);
-                printf("%-6s", b->value);
-                while (t != NULL)
-                {
-                    printf("%d ", t->line);
-                    t = t->next;
-                }
+/*
+int main() {
+    int hashtableSize = 200;
+    create_symboltable(hashtableSize);
 
-                printf("\n");
-                b = b->next;
-            }
+    // Inserção de elementos
+    insert_symbol("main&var1", "var1", "main", "float");
+    insert_symbol("global&varglob", "varglob", "global", "string");
+    insert_symbol("ifsingle&i", "i", "ifsingle", "int");
+    insert_symbol("ifsingle&i", "i", "ifsingle", "int");
+    insert_symbol("else&var2", "var2", "else", "bool");
+    insert_symbol("global&varText", "varText", "global", "float");  // Chave duplicada para ilustrar colisão
+
+    // Impressão dos elementos
+    print_symboltable();
+
+    // Busca de símbolo por scopo
+    symbol_attributes* value1;
+    value1 = get_symbol("main&var1");
+    symbol_attributes* value2;
+    value2 = get_symbol("global&varglob");
+    symbol_attributes* value3; 
+    value3 = get_symbol("ifsingle&i");
+    symbol_attributes* value4;
+    value4 = get_symbol("else&var2");
+
+    printf("Valor encontrado para chave main&var1: %s\n", value1->identifier);
+    printf("Valor encontrado para chave global&varglob: %s\n", value2->identifier);
+    printf("Valor encontrado para chave ifsingle&i: %s\n", value3->identifier);
+    printf("Valor encontrado para chave else&var2: %s\n", value4->identifier);
+
+    free(value1);
+    free(value2);
+    free(value3);
+    free(value4);
+
+    // Libera a memória alocada
+    for (int i = 0; i < symboltable->size; i++) {
+        symbol* current = symboltable->buckets[i];
+        while (current != NULL) {
+            symbol* next = current->next;
+            free(current);
+            current = next;
         }
     }
+    free(symboltable->buckets);
+    free(symboltable);
 
-    printf("\n");
+    return 0;
 }
-
-void dump_symboltable(char *filename)
-{
-    printf("Generating '%s' symbol table log... ", filename);
-    FILE *file = fopen(filename, "w");
-    fprintf(file, "\n");
-    fprintf(file, "Scope@Id                  Datatype        Type           Value Line Numbers\n");
-    fprintf(file, "------------------------- --------------- -------------- ----- -----------------\n");
-
-    for (int i = 0; i < SIZE; ++i)
-    {
-        if (table[i] != NULL)
-        {
-            bucket *b = table[i];
-
-            while (b != NULL)
-            {
-                linenumber_bucket *t = b->lineslist;
-                fprintf(file, "%-25s ", b->text);
-                fprintf(file, "%-15s ", b->datatype);
-                fprintf(file, "%-14s ", b->type);
-                fprintf(file, "%-5s", b->value);
-                 
-                while (t != NULL)
-                {
-                    fprintf(file, "%d ", t->line);
-                    t = t->next;
-                }
-
-                fprintf(file, "\n");
-                b = b->next;
-            }
-        }
-    }
-
-    fprintf(file, "\n");
-    fclose(file);
-    printf("Done\n");
-}
-
+*/
